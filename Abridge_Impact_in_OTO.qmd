@@ -1,0 +1,86 @@
+---
+title: "Abridge AI Scribe in OTO"
+author: "JP Giliberto and Jen Ren"
+format: html
+---
+
+## Wrangle
+### Load Packages
+```{r}
+#|code-fold: true
+#|warning: false
+#|warning: false
+
+#loading standard packages for data wrangle and visualization. JPG just commented out packages I don't think we will use. 
+library (tidyverse)
+library(readr)
+library (lubridate)
+library(readxl)
+library(forcats)
+library(scales)
+library(ggthemes)
+library(ggrepel)
+library(janitor)
+library(gt)
+#library(ggridges)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+#library(ggsignif)
+
+```
+
+### Load DeID data
+
+```{r}
+#|code-fold: true
+#|warning: false
+#|warning: false
+
+
+SessionsRaw <- read_csv("Raw Data DeID/Abridge Sessions 09 25 to 11 25.csv") |> 
+  select(2:4)
+SignalRaw <- read_csv("Raw Data DeID/Signal Data 12 22 to 11 25.csv") |> 
+  select(2:8)
+SurveyRaw <- read_csv("Raw Data DeID/Survey - Baseline.csv") |> 
+  select(2:57)
+
+
+```
+
+### Create or Load Keys
+```{r}
+KeyIDRole <- read_csv("Participant Key ID.csv") |> 
+  select(2:3)
+
+#High vs Low Users. we can discuss best way to do that median 106
+KeyUserHigh <- SessionsRaw |> 
+  group_by(StudyID) |> 
+  summarise(n = sum(`Abridge Sessions`, na.rm = T)) |> 
+  mutate(HighUser = n>105) |> 
+  select(-n)
+```
+
+## Data Exploration Visualization
+
+```{r}
+Pajama <- SignalRaw |> 
+  filter(Metric == "Pajama Time") |> 
+  left_join(KeyUserHigh) |> 
+  filter( !is.na(HighUser)) |> 
+  group_by(HighUser,`Reporting Period Start Date` ) |> 
+  summarise(Value = median(Value))
+
+golive
+
+ggplot(Pajama, aes(x = `Reporting Period Start Date`, y = Value))+
+  geom_point()+
+  geom_line()+
+  geom_vline(xintercept = ymd("2025-09-09"), color = "red", linetype = "dashed") +
+  facet_wrap(vars(HighUser))+
+  theme_classic()
+
+
+```
+
+
