@@ -37,10 +37,12 @@ library(broom.mixed)
 #|warning: false
 #|warning: false
 
-
+# Sessions are number of abridge activations
 SessionsRaw <- read_csv("Raw Data DeID/Abridge Sessions 09 25 to 11 25.csv") |> 
   select(2:4)
-SignalRaw <- read_csv("Raw Data DeID/Signal Data 12 22 to 11 25.csv") |> 
+
+#signal data raw with dates
+SignalRaw1 <- read_csv("Raw Data DeID/Signal Data 12 22 to 11 25.csv") |> 
   select(StartDate = `Reporting Period Start Date`, EndDate = `Reporting Period End Date`, 4:8) |> 
   mutate(GroupData = case_when(StudyID == "ID928" & StartDate >"2025-02-01" ~ "AIScribe",
                                StudyID == "ID928" & StartDate <"2025-01-01" ~ "Control",
@@ -49,8 +51,46 @@ SignalRaw <- read_csv("Raw Data DeID/Signal Data 12 22 to 11 25.csv") |>
                                StartDate < "2025-08-15" ~"Control",
                                T ~"Transition")
                 )
+
+#eliminate months where the provider did not see more than a threshold (at least 20). 25 of 778 (3.2%) provider months eliminated
+KeyApptsPerMo <- SignalRaw1 |> 
+  filter(Metric == "Appointments per Day") |> 
+  select(StudyID, StartDate,Numerator) |> 
+  mutate(ThresholdAppt = Numerator >19) |>  
+  #count(ThresholdAppt) |> 
+  select(-Numerator)
+
+SignalRaw <- SignalRaw1 |> 
+  left_join(KeyApptsPerMo) |> 
+  filter(ThresholdAppt) |> 
+  select(-ThresholdAppt)
+
 SurveyRaw <- read_csv("Raw Data DeID/Survey - Baseline.csv") |> 
   select(2:57)
+
+VisitsRaw <- read_csv("Raw Data DeID/visits data 12 1 2022 to 12 18.csv") |> 
+  select(VisitType = `Visit Type`, Date = `Visit Date`, LOS = `Level of Service`, StudyID) |> 
+  filter(LOS !="ERROR") |> 
+  filter(!str_detect(VisitType, "SUPPORT")) |> 
+  mutate(VisitCat = case_when(str_detect(VisitType,"NEW")~ "NEW",
+                             str_detect(VisitType,"TELE")~ "TELEMED",
+                             str_detect(LOS, "9924")~ "TELEMED",
+                             str_detect(LOS, "99241")~ "TELEMED",
+                             str_detect(LOS, "9921")~ "RETURN",
+                             str_detect(LOS, "99024")~ "OTHER",
+                             str_detect(LOS,  "PROC")~ "OTHER",
+                             str_detect(VisitType,  "PROCEDURE")~ "OTHER",
+                             str_detect(LOS,  "NOCH")~ "OTHER",
+                             str_detect(LOS, "99203")~ "NEW",
+                             str_detect(LOS, "99204")~ "NEW",
+                             str_detect(LOS, "99205")~ "NEW",
+                             str_detect(VisitType, "BOTOX")~"OTHER",
+                             T~"RETURN")) |> #what was left was 99202 in a return slot
+  group_by(StudyID, Date,VisitCat) |> 
+  summarise(n= n()) |> 
+  pivot_wider(names_from = VisitCat, values_from = n)
+
+#need to validate raw visit data looks okay? when I look at mine ID928
 
 ```
 
@@ -64,12 +104,25 @@ KeyUserHigh <- SessionsRaw |>
   group_by(StudyID) |> 
   summarise(n = sum(`Abridge Sessions`, na.rm = T)) |> 
   #12/20 median number of total usage was 105 will need to update
-  mutate(HighUser = n>105) |> 
+  mutate(HighUser = n>105) #|> 
   select(-n)
+  
+KeyDenominator<- SignalRaw |> 
+  select(StudyID,StartDate, EndDate,Metric, Numerator, Denominator) |>
+  mutate(DenomUnits = case_when(str_detect(Metric, "Time in Notes per Appointment") ~ "per Appointment",
+                                 str_detect(Metric, "Time in System per Day") ~ "per Day with a Login",
+                                 str_detect(Metric, "Time On Unscheduled Days") ~ "per Unscheduled Day",
+                                str_detect(Metric, "Appointments per Day") ~ "per Scheduled Day",
+                                 T ~ NA)) |> 
+  filter(!is.na(DenomUnits)) |> 
+  group_by(StudyID,StartDate, EndDate, DenomUnits) |> 
+  summarise(denom_max = max(Denominator, na.rm = T)) |> 
+  pivot_wider(names_from = DenomUnits,values_from = denom_max)
+  
 ```
 
 ## Data Exploration Visualization
-
+### Pajama Time Figure
 ```{r}
 Pajama <- SignalRaw |> 
   filter(Metric == "Pajama Time") |> 
@@ -82,9 +135,60 @@ ggplot(Pajama, aes(x = StartDate, y = Value))+
   ylab("PJ Time per Scheduled Day")+
   theme_bw()
 
-ggsave ("PJ Time All Users.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
+#ggsave ("PJ Time All Users.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
+
+```
+
+### Pajamtime table
+
+```{r}
+PajamaDescr <- Pajama |> 
+  group_by(StudyID,HighUser, GroupData) |> 
+  summarise(Mean = mean (Value)) |>
+  pivot_wider(names_from = "GroupData", values_from = Mean) |> 
+  select(-Transition) |>
+  mutate(Difference = Control - AIScribe ) |> 
+  arrange(desc(Difference)) |> 
+  gt()
+  
+PajamaDescr  
+```
+
+### Time in Notes per Appointment
+```{r}
+notes <- SignalRaw |> 
+  filter(Metric == "Time in Notes per Appointment") |> 
+  left_join(KeyUserHigh)
+
+ggplot(notes, aes(x = StartDate, y = Value))+
+  geom_point(aes(color=GroupData), size = 1.5)+
+  geom_line(color = "grey60")+
+  facet_grid(StudyID~HighUser, scales = "free_y",)+
+  ylab("PJ Time per Scheduled Day")+
+  theme_bw()
+
+ggsave ("Notes All Users.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
 
 
 ```
+### copied from UW medicine wide to look at time saved in notes per appointment estimating the average number of 
+```{r}
+#| warning: false
+time_in_notes_appt <- UWMdata |> 
+  filter(GoLive==T) |> 
+  filter(Metric == "Time in Notes per Appointment") |>
+  #(month = month(date)) |> 
+  left_join(UWMBaseMeans) |> 
+  mutate(TimeSaving = Value - BaseMedian) |> 
+  left_join(key_appt_per_mo) |> 
+  mutate(TotalTimeSaved = ApptPerMo * TimeSaving /60) |> 
+  left_join(key_SuperUser)
+```
+
+```{r}
+PercentAmbient <- SignalRaw |> 
+  filter(str_detect(Metric, "mbient"))
+```
+
 
 
