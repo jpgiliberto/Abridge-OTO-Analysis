@@ -26,6 +26,7 @@ library(gt)
 library(lme4)
 library(lmerTest)
 library(broom.mixed)
+library(fuzzyjoin)
 #library(ggsignif)
 
 ```
@@ -89,6 +90,8 @@ VisitsRaw <- read_csv("Raw Data DeID/visits data 12 1 2022 to 12 18.csv") |>
   group_by(StudyID, Date,VisitCat) |> 
   summarise(n= n()) |> 
   pivot_wider(names_from = VisitCat, values_from = n)
+
+VisitsRaw$Date <- ymd( VisitsRaw$Date, tz = "UTC")
 
 #need to validate raw visit data looks okay? when I look at mine ID928
 
@@ -193,9 +196,7 @@ AverageTimeInNotesByHighUser <- AverageTimeInNotesUser |>
  summarise(MeanChangeInNotesApp = mean(MeanChangeInNotesApp),
             MeanEstimatedHrsSave = mean(MeanEstimatedHrsSave),
             MeanPercenterAmbient = mean(MeanPercenterAmbient))
-  
-
-ggplot(TimeInNotes, aes(x = StartDate, y = Value))+
+  ggplot(TimeInNotes, aes(x = StartDate, y = Value))+
   geom_point(aes(color=GroupData), size = 1.5)+
   geom_line(color = "grey60")+
   facet_grid(StudyID~HighUser, scales = "free_y",)+
@@ -206,6 +207,90 @@ ggplot(TimeInNotes, aes(x = StartDate, y = Value))+
 
 
 ```
+
+### Atempt at Linear Mixed Effect Model for Notes
+Seems to be possile for Large data set like control, but does not seem to make sense for post
+```{r}
+TimeInNotesAll <- SignalRaw |>
+  filter(Metric == "Time in Notes per Appointment") |> 
+  select(-Metric)
+
+VisitsPerMo1 <- VisitsRaw |> 
+  mutate(StartDate = case_when( Date <= "2022-12-31"~"2022-11-27",
+                                Date <= "2023-01-28"~"2023-01-01",
+                                Date <= "2023-02-25"~"2023-01-29",
+                                Date <= "2023-03-25"~"2023-02-26",
+                                Date <= "2023-04-29"~"2023-03-26",
+                                Date <= "2023-05-27"~"2023-04-30",
+                                Date <= "2023-06-24"~"2023-05-28",
+                                Date <= "2023-07-29"~"2023-06-25",
+                                Date <= "2023-08-26"~"2023-07-30",
+                                Date <= "2023-09-30"~"2023-08-27",
+                                Date <= "2023-10-28"~"2023-10-01",
+                                Date <= "2023-11-25"~"2023-10-29",
+                                Date <= "2023-12-30"~"2023-11-26",
+                                Date <= "2024-01-27"~"2023-12-31",
+                                Date <= "2024-02-24"~"2024-01-28",
+                                Date <= "2024-03-30"~"2024-02-25",
+                                Date <= "2024-04-27"~"2024-03-31",
+                                Date <= "2024-05-25"~"2024-04-28",
+                                Date <= "2024-06-29"~"2024-05-26",
+                                Date <= "2024-07-27"~"2024-06-30",
+                                Date <= "2024-08-31"~"2024-07-28",
+                                Date <= "2024-09-28"~"2024-09-01",
+                                Date <= "2024-10-26"~"2024-09-29",
+                                Date <= "2024-11-30"~"2024-10-27",
+                                Date <= "2024-12-28"~"2024-12-01",
+                                Date <= "2025-01-25"~"2024-12-29",
+                                Date <= "2025-02-22"~"2025-01-26",
+                                Date <= "2025-03-29"~"2025-02-23",
+                                Date <= "2025-04-26"~"2025-03-30",
+                                Date <= "2025-05-31"~"2025-04-27",
+                                Date <= "2025-06-28"~"2025-06-01",
+                                Date <= "2025-07-26"~"2025-06-29",
+                                Date <= "2025-08-30"~"2025-07-27",
+                                Date <= "2025-09-27"~"2025-08-31",
+                                Date <= "2025-10-25"~"2025-09-28",
+                                Date <= "2025-11-29"~"2025-10-26",
+                                T~NA))
+
+
+
+VisitsPerMo <-  VisitsPerMo1 |> 
+  group_by(StudyID,StartDate) |> 
+  summarise(New = sum(NEW, na.rm =T),
+            #Return did not differ from telemed so we combine them
+            Return = sum(RETURN, na.rm =T),
+            Other = sum(OTHER, na.rm = T),
+            Telemed = sum(TELEMED, na.rm = T),
+            Total = sum(NEW, RETURN, OTHER, TELEMED, na.rm = T)) |> 
+  filter(Total>19) |> 
+  filter(!is.na(StartDate))
+
+VisitsPerMo$StartDate <- ymd(VisitsPerMo$StartDate, tz = "UTC")
+
+
+TimeInNotesLM <- TimeInNotesAll |> 
+  left_join(VisitsPerMo,join_by(StudyID, StartDate)) |> 
+  left_join(KeyUserHigh)
+
+# numbers are off for totals from visits and denominator of total sum of visits. We will need to look at that and take whatever number is more reliable. 
+
+
+NotesData4LMEM = TimeInNotesLM |> 
+  filter(GroupData == "Control") |> 
+  filter(HighUser)
+
+NotesData4LMEM$StudyID <- as_factor(NotesData4LMEM$StudyID)
+
+NotesControlLMEM <- lmer(formula = Numerator ~ (New) + (Return) + (Other) + (Telemed) + (1|StudyID), data=NotesData4LMEM)
+
+
+summary(NotesControlLMEM)				
+
+
+```
+
 
 ### Graph of Percent Saves and Percent ambient
 ```{r}
