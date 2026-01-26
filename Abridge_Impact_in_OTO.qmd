@@ -43,15 +43,16 @@ SessionsRaw <- read_csv("Raw Data DeID/Abridge Sessions 09 25 to 11 25.csv") |>
   select(2:4)
 
 #signal data raw with dates
-SignalRaw1 <- read_csv("Raw Data DeID/Signal Data 12 22 to 11 25.csv") |> 
-  select(StartDate = `Reporting Period Start Date`, EndDate = `Reporting Period End Date`, 4:8) |> 
+SignalRaw1 <- read_csv("Raw Data DeID/Signal Data 12 22 to 12 25.csv") |> 
+  select(StartDate = `Reporting Period Start Date`, EndDate = `Reporting Period End Date`, 4:9) |> 
   mutate(GroupData = case_when(StudyID == "ID928" & StartDate >"2025-02-01" ~ "AIScribe",
                                StudyID == "ID928" & StartDate <"2025-01-01" ~ "Control",
                                StudyID == "ID928"  ~ "Transition",
                                StartDate > "2025-9-01"~ "AIScribe",
                                StartDate < "2025-08-15" ~"Control",
                                T ~"Transition")
-                )
+ 
+                       )
 
 #eliminate months where the provider did not see more than a threshold (at least 20). 25 of 778 (3.2%) provider months eliminated
 KeyApptsPerMo <- SignalRaw1 |> 
@@ -65,6 +66,10 @@ SignalRaw <- SignalRaw1 |>
   left_join(KeyApptsPerMo) |> 
   filter(ThresholdAppt) |> 
   select(-ThresholdAppt)
+
+Groupdata_lvl <- c("Control", "Transition", "AIScribe"  )
+
+SignalRaw$GroupData <- factor(SignalRaw$GroupData, levels = Groupdata_lvl )
 
 SurveyRaw <- read_csv("Raw Data DeID/Survey - Baseline.csv") |> 
   select(2:57)
@@ -93,7 +98,7 @@ VisitsRaw <- read_csv("Raw Data DeID/visits data 12 1 2022 to 12 18.csv") |>
 
 VisitsRaw$Date <- ymd( VisitsRaw$Date, tz = "UTC")
 
-#need to validate raw visit data looks okay? when I look at mine ID928
+#need to validate raw visit data looks okay? when I look at mine ID928 see that they mostly match but if going to use them needs to make sure
 
 ```
 
@@ -110,8 +115,8 @@ KeyPercentAmbient <- SignalRaw |>
 KeyUserHigh <- SessionsRaw |> 
   group_by(StudyID) |> 
   summarise(n = sum(`Abridge Sessions`, na.rm = T)) |> 
-  #12/20 median number of total usage was 105 will need to update
-  mutate(HighUser = n>105) #|> 
+  #12/20 median number of total usage was 105, top third was 150 will need to update
+  mutate(HighUser = n>150) #|> 
   #select(-n)
   
 KeyDenominator<- SignalRaw |> 
@@ -139,6 +144,7 @@ BaselineNotesPerAppt <- BaselineMeans |>
 ```
 
 ## Data Exploration Visualization
+
 ### Pajama Time Figure
 ```{r}
 Pajama <- SignalRaw |> 
@@ -152,7 +158,7 @@ ggplot(Pajama, aes(x = StartDate, y = Value))+
   ylab("PJ Time per Scheduled Day")+
   theme_bw()
 
-#ggsave ("PJ Time All Users.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
+ggsave ("PJ Time All Users by thirds.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
 
 ```
 
@@ -164,52 +170,165 @@ PajamaDescr <- Pajama |>
   summarise(Mean = mean (Value)) |>
   pivot_wider(names_from = "GroupData", values_from = Mean) |> 
   select(-Transition) |>
-  mutate(Difference = Control - AIScribe ) |> 
+  mutate(Difference = AIScribe - Control) |> 
   arrange(desc(Difference)) |> 
   gt()
   
 PajamaDescr  
 ```
+##WOWH PJTime and Unscheduled Days
+### WOWH total reduction (NS)
 
-### Time in Notes per Appointment
 ```{r}
-TimeInNotes <- SignalRaw |>
+LMWOWHData <- SignalRaw |>
+  filter(Metric == "Pajama Time" | Metric == "Time On Unscheduled Days")|>
+  filter(GroupData !="Transition") |>
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(WOWHmontly = sum(Numerator,na.rm =T)) |> 
+  left_join(KeyDenominator, join_by(StudyID,StartDate)) |> 
+ # left_join(KeyUserHigh) |> 
+#  filter(HighUser) |> 
+  mutate(HrsPerDay = WOWHmontly*20/`per Appointment`/60) |> 
+  select(StudyID, WOWHmontly, GroupData, HrsPerDay)
+
+LMWOWH <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMWOWHData)
+
+ LMWOWHcoef <- tidy(LMWOWH, effects = "fixed") |> 
+  gt()
+ LMWOWHcoef
+```
+
+### WOWH Pajama Time (reduced in high users 27%)
+
+```{r}
+LMPJData <- SignalRaw |>
+  filter(Metric == "Pajama Time")|>
+  filter(GroupData !="Transition") |>
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(PJmontly = sum(Numerator,na.rm =T)) |> 
+  left_join(KeyDenominator, join_by(StudyID,StartDate)) |>
+   left_join(KeyUserHigh) |> 
+  filter(HighUser) |> 
+  mutate(HrsPerDay = PJmontly*20/`per Appointment`/60) |> 
+  select(StudyID, PJmontly, GroupData, HrsPerDay)
+
+LMPJ <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMPJData)
+
+ LMPJcoef <- tidy(LMPJ, effects = "fixed") |> 
+  gt()
+ LMPJcoef
+
+ 
+```
+
+### WOWH Unscheduled Day AA 43%reduced 2 hrs 4.6
+
+```{r}
+
+APP <- c("ID563","ID606","ID888","ID006")
+
+LMunSchData <- SignalRaw |>
+  filter(Metric == "Time On Unscheduled Days")|>
+  filter(GroupData !="Transition") |>
+  filter(StudyID %in% APP)|> 
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(Unsch = sum(Numerator,na.rm =T)) |> 
+   left_join(KeyDenominator, join_by(StudyID,StartDate)) |> 
+# left_join(KeyUserHigh) |> 
+ # filter(HighUser) |> 
+  mutate(HrsPerDay = Unsch*20/`per Appointment`/60) |> 
+  select(StudyID, Unsch, GroupData, HrsPerDay)
+
+LMunSch <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMunSchData)
+
+ LMunSchcoef <- tidy(LMunSch, effects = "fixed") |> 
+  gt()
+ LMunSchcoef
+```
+
+## Time in Notes per Appointment
+
+###Descriptive how much time saved per appointment, estimated hours saved
+```{r}
+TimeInNotesAIonly <- SignalRaw |>
   filter(Metric == "Time in Notes per Appointment") |>
   filter(GroupData =="AIScribe") |> 
   left_join(KeyUserHigh) |> 
   left_join(BaselineNotesPerAppt, join_by (StudyID, Metric)) |> 
-  #Change in Notes is the observed value subtracted from the current value. We will get sone for each month. and then average them. 
+  #Change in Notes is the observed value subtracted from the current value. We will get multiple for each month. and then average them. 
    mutate(ChangeInNotesPerApp =  Value - BaselineMean,
           EstimatedHrsSaved = Numerator/60 - BaselineMean*Denominator/60,
           PercentNotesSaved = ChangeInNotesPerApp/BaselineMean ) |>
   left_join(KeyPercentAmbient, join_by(StudyID,StartDate))
 
+TimeInNotes <- SignalRaw |>
+  filter(Metric == "Time in Notes per Appointment") |>
+  left_join(KeyUserHigh) 
 
-AverageTimeInNotesUser <- TimeInNotes |> 
-  group_by(StudyID, HighUser) |> 
-  summarise(MeanChangeInNotesApp = mean(ChangeInNotesPerApp),
-            MeanEstimatedHrsSave = mean(EstimatedHrsSaved),
-            MeanPercenterAmbient = mean(PercentNotesSaved))
+AverageTimeInNotesUser <- TimeInNotesAIonly |>
+  group_by(StudyID,HighUser)|> 
+  summarise(MeanChangeInNotesApp = round(mean(ChangeInNotesPerApp),2),
+            MeanEstimatedHrsSave = round(mean(EstimatedHrsSaved),2),
+            MeanPercentSaved= mean(PercentNotesSaved)) |> 
+  ungroup() |> 
+  gt() |> 
+  fmt_percent(MeanPercentSaved)
 
-AverageTimeInNotesByHighUser <- AverageTimeInNotesUser |> 
-  group_by(HighUser) |> 
- summarise(MeanChangeInNotesApp = mean(MeanChangeInNotesApp),
-            MeanEstimatedHrsSave = mean(MeanEstimatedHrsSave),
-            MeanPercenterAmbient = mean(MeanPercenterAmbient))
-  ggplot(TimeInNotes, aes(x = StartDate, y = Value))+
-  geom_point(aes(color=GroupData), size = 1.5)+
-  geom_line(color = "grey60")+
-  facet_grid(StudyID~HighUser, scales = "free_y",)+
-  ylab("PJ Time per Scheduled Day")+
-  theme_bw()
+AverageTimeInNotesUser
+```
+#### Visual Graph to help with data analysis. 
+```{r}
+#ggplot(TimeInNotes, aes(x = StartDate, y = Value))+
+#  geom_point(aes(color=GroupData), size = 1.5)+
+# geom_line(color = "grey60")+
+#  facet_grid(StudyID~HighUser, scales = "free_y",)+
+#  ylab("PJ Time per Scheduled Day")+
+# theme_bw()
 
 #ggsave ("Notes All Users.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
 
-
 ```
 
-### Atempt at Linear Mixed Effect Model for Notes
-Seems to be possile for Large data set like control, but does not seem to make sense for post
+
+
+### Descriptive of time in Notes Saved
+```{r}
+AverageTimeInNotesByHighUser <- TimeInNotesAIonly |> 
+  group_by(HighUser) |> 
+  summarise(MeanChangeInNotesApp = round(mean(ChangeInNotesPerApp),2),
+            MeanEstimatedHrsSave = round(mean(EstimatedHrsSaved),2),
+            MeanPercentSaved= mean(PercentNotesSaved)) |> 
+  gt() |> 
+  fmt_percent(MeanPercentSaved)
+
+AverageTimeInNotesByHighUser
+
+```
+### Linear Mixed Effect Model for all users 
+
+```{r}
+LMAllNotes <- SignalRaw |>
+  filter(Metric == "Time in Notes per Appointment") |>
+  filter(GroupData !="Transition") |> 
+  select(StudyID, Value, GroupData, Denominator)
+
+ApptPerMoAIScribes <- LMAllNotes |> 
+  filter(GroupData !="Control") |> 
+  summarize(mean = median(Denominator))
+
+LMNotesApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllNotes)
+
+summary(LMNotesApp)
+ LMNotescoef <- tidy(LMNotesApp, effects = "fixed") |> 
+  gt()
+ LMNotescoef
+```
+
+At mean of 111 per month 3 hours time in notes per month
+22% reduction with 1.7/7.9
+
+
+### Linear Mixed Effect Model for Type of Appointments
 ```{r}
 TimeInNotesAll <- SignalRaw |>
   filter(Metric == "Time in Notes per Appointment") |> 
