@@ -38,12 +38,14 @@ library(fuzzyjoin)
 #|warning: false
 #|warning: false
 
+ExStudyIDs <- c("ID563", "ID760", "ID871")
+
 # Sessions are number of abridge activations
 SessionsRaw <- read_csv("Raw Data DeID/Abridge Sessions 09 25 to 11 25.csv") |> 
   select(2:4)
 
 #signal data raw with dates
-SignalRaw1 <- read_csv("Raw Data DeID/Signal Data 12 22 to 12 25.csv") |> 
+SignalRaw1 <- read_csv("Raw Data DeID/Signal Data 12 22 to 01 26.csv") |> 
   select(StartDate = `Reporting Period Start Date`, EndDate = `Reporting Period End Date`, 4:9) |> 
   mutate(GroupData = case_when(StudyID == "ID928" & StartDate >"2025-02-01" ~ "AIScribe",
                                StudyID == "ID928" & StartDate <"2025-01-01" ~ "Control",
@@ -52,7 +54,8 @@ SignalRaw1 <- read_csv("Raw Data DeID/Signal Data 12 22 to 12 25.csv") |>
                                StartDate < "2025-08-15" ~"Control",
                                T ~"Transition")
  
-                       )
+                       ) |> 
+  filter(!StudyID%in%ExStudyIDs)
 
 #eliminate months where the provider did not see more than a threshold (at least 20). 25 of 778 (3.2%) provider months eliminated
 KeyApptsPerMo <- SignalRaw1 |> 
@@ -113,10 +116,11 @@ KeyPercentAmbient <- SignalRaw |>
 
 #High vs Low Users. we can discuss best way to do that. median 106
 KeyUserHigh <- SessionsRaw |> 
-  group_by(StudyID) |> 
-  summarise(n = sum(`Abridge Sessions`, na.rm = T)) |> 
-  #12/20 median number of total usage was 105, top third was 150 will need to update
-  mutate(HighUser = n>150) #|> 
+   filter(!StudyID%in%ExStudyIDs) |> 
+   group_by(StudyID) |> 
+   summarise(n = sum(`Abridge Sessions`, na.rm = T)) |> 
+  #8/19 median number of total usage was 106, top third was 135 will need to update
+  mutate(HighUser = n>135) #|> 
   #select(-n)
   
 KeyDenominator<- SignalRaw |> 
@@ -130,6 +134,7 @@ KeyDenominator<- SignalRaw |>
   group_by(StudyID,StartDate, EndDate, DenomUnits) |> 
   summarise(denom_max = max(Denominator, na.rm = T)) |> 
   pivot_wider(names_from = DenomUnits,values_from = denom_max)
+
 
 
 BaselineMeans <- SignalRaw |> 
@@ -186,8 +191,8 @@ LMWOWHData <- SignalRaw |>
   group_by(StudyID,StartDate,GroupData) |> 
   summarise(WOWHmontly = sum(Numerator,na.rm =T)) |> 
   left_join(KeyDenominator, join_by(StudyID,StartDate)) |> 
- # left_join(KeyUserHigh) |> 
-#  filter(HighUser) |> 
+  left_join(KeyUserHigh) |> 
+  filter(HighUser) |> 
   mutate(HrsPerDay = WOWHmontly*20/`per Appointment`/60) |> 
   select(StudyID, WOWHmontly, GroupData, HrsPerDay)
 
@@ -207,7 +212,7 @@ LMPJData <- SignalRaw |>
   group_by(StudyID,StartDate,GroupData) |> 
   summarise(PJmontly = sum(Numerator,na.rm =T)) |> 
   left_join(KeyDenominator, join_by(StudyID,StartDate)) |>
-   left_join(KeyUserHigh) |> 
+  left_join(KeyUserHigh) |> 
   filter(HighUser) |> 
   mutate(HrsPerDay = PJmontly*20/`per Appointment`/60) |> 
   select(StudyID, PJmontly, GroupData, HrsPerDay)
@@ -314,7 +319,7 @@ LMAllNotes <- SignalRaw |>
 
 ApptPerMoAIScribes <- LMAllNotes |> 
   filter(GroupData !="Control") |> 
-  summarize(mean = median(Denominator))
+  summarize(mean = mean(Denominator))
 
 LMNotesApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllNotes)
 
