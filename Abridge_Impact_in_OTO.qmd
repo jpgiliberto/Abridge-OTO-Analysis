@@ -6,9 +6,13 @@ format: html
 
 ## Wrangle
 ### Load Packages
+
 ```{r}
-#|code-fold: true
-#|warning: false
+#| echo: false
+#| message: false
+#| warning: false
+#| results: "hide"
+#| code-fold: true
 
 #loading standard packages for data wrangle and visualization. JPG just commented out packages I don't think we will use. 
 library (tidyverse)
@@ -33,8 +37,12 @@ library(fuzzyjoin)
 ### Load DeID data
 
 ```{r}
-#|code-fold: true
-#|warning: false
+#| echo: false
+#| message: false
+#| warning: false
+#| results: "hide"
+#| code-fold: true
+
 
 ExStudyIDs <- c("ID563", "ID760", "ID871")
 
@@ -99,14 +107,16 @@ VisitsRaw <- read_csv("Raw Data DeID/visits data 12 1 2022 to 01 31.csv") |>
 
 VisitsRaw$Date <- ymd( VisitsRaw$Date, tz = "UTC")
 
-#need to validate raw visit data looks okay? when I look at mine ID928 see that they mostly match but if going to use them needs to make sure
-
 ```
 
 ### Create or Load Keys
 ```{r}
-#|code-fold: true
-#|warning: false
+#| echo: false
+#| message: false
+#| warning: false
+#| results: "hide"
+#| code-fold: true
+
 KeyIDRole <- read_csv("Participant Key ID.csv") |> 
   select(2:3)
 
@@ -161,49 +171,15 @@ BaselineNotesPerAppt <- BaselineMeans |>
  
 ```
 
-## Data Exploration Visualization
-
-### Pajama Time Figure
-```{r}
-#|code-fold: true
-#|warning: false
-Pajama <- SignalRaw |> 
-  filter(Metric == "Pajama Time") |> 
-  left_join(KeyUserHigh) 
-
-ggplot(Pajama, aes(x = StartDate, y = Value))+
-  geom_point(aes(color=GroupData), size = 1.5)+
-  geom_line(color = "grey60")+
-  facet_grid(StudyID~HighUser, scales = "free_y",)+
-  ylab("PJ Time per Scheduled Day")+
-  theme_bw()
-
-#ggsave ("PJ Time All Users by thirds.jpg", device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 12 ,width = 8  )
-
-```
-
-### Pajamtime table
-
-```{r}
-PajamaDescr <- Pajama |> 
-  group_by(StudyID,HighUser, GroupData) |> 
-  summarise(Mean = mean (Value)) |>
-  pivot_wider(names_from = "GroupData", values_from = Mean) |> 
-  select(-Transition) |>
-  mutate(Difference = AIScribe - Control) |> 
-  arrange(desc(Difference)) |>  
-  gt()
-  
-PajamaDescr  
-```
-
-
 ##WOWH PJTime and Unscheduled Days
 **APPs need to be exclude from anything that has time on unscheduled days as they are often scribing for other attendings on unscheduled Days
 
-### WOWH total reduction
+### WOWH total reduction - High Users
 
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
 
 APP <- c("ID563","ID606","ID888","ID006")
 
@@ -231,9 +207,13 @@ LMWOWH <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMWOWHDat
  
 ```
 
-### WOWH Pajama Time (reduced in high users 27%)
+### WOWH Pajama Time, High Users
 
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
 LMPJData <- SignalRaw |>
   filter(Metric == "Pajama Time")|>
   filter(GroupData !="Transition") |>
@@ -258,9 +238,13 @@ LMPJ <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMPJData)
  
 ```
 
-### WOWH Unscheduled Day AA 43%reduced 2 hrs 4.6
+### WOWH Unscheduled Day 
 
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
 
 APP <- c("ID563","ID606","ID888","ID006")
 
@@ -291,21 +275,35 @@ LMunSch <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMunSchD
 
 ### Time in Notes
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
 LMAllNotes <- SignalRaw |>
   filter(Metric == "Time in Notes per Appointment") |>
   filter(GroupData !="Transition") |> 
-  select(StudyID, Value, GroupData, Denominator)
+  select(StudyID, Value, GroupData, Denominator) |> 
+  mutate(ValueD = Value *20/60)
 
-ApptPerMoAIScribes <- LMAllNotes |> 
-  filter(GroupData !="Control") |> 
-  summarize(mean = mean(Denominator))
+#a models will be for time per appointment (mins)
+#d models will be for time per typical full clinic day (hours)
 
-LMNotesApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllNotes)
+LMNotesAppa <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllNotes)
 
-summary(LMNotesApp)
- LMNotescoef <- tidy(LMNotesApp, effects = "fixed") |> 
-  gt()
+summary(LMNotesAppa)
+LMNotescoefa <- tidy(LMNotesAppa, effects = "fixed") |>
+  mutate(Units = "Minutes Per Appointment")
+
+LMNotesAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllNotes)
+
+summary(LMNotesAppd)
+LMNotescoefd <- tidy(LMNotesAppd, effects = "fixed") |>
+  mutate(Units = "hrs per typical day")
+ 
+ LMNotescoef <- rbind(LMNotescoefd,LMNotescoefa)
+ 
  LMNotescoef |> 
+   gt() |> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
@@ -313,98 +311,112 @@ summary(LMNotesApp)
 ```
 ### Time in Clinical Review
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
 LMAllCR <- SignalRaw |>
   filter(Metric == "Time in Clinical Review per Appointment") |>
   filter(GroupData !="Transition") |> 
-  select(StudyID, Value, GroupData, Denominator)
+  select(StudyID, Value, GroupData, Denominator) |> 
+  mutate(ValueD = Value *20/60)
 
-ApptPerMoAIScribesCR <- LMAllCR |> 
-  filter(GroupData !="Control") |> 
-  summarize(mean = mean(Denominator))
+#a models will be for time per appointment (mins)
+#d models will be for time per typical full clinic day (hours)
 
-LMCRApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllCR)
+LMCRAppa <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllCR)
+LMCRcoefa <- tidy(LMCRAppa, effects = "fixed") |> 
+  mutate(Units = "Minutes per Appointment")
 
-summary(LMCRApp)
- LMCRcoef <- tidy(LMCRApp, effects = "fixed") |> 
-  gt()
- LMCRcoef |> 
+LMCRAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllCR)
+LMCRcoefd <- tidy(LMCRAppd, effects = "fixed") |> 
+  mutate(Units = "Hours per Typical Day")
+                   
+ LMCRcoef <-  rbind(LMCRcoefd, LMCRcoefa) |> 
+   gt() |> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
                bins= c(1.0,0.15,0.05,0))
+ 
+ LMCRcoef
+
 ```
 ### Time in Orders
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
 LMAllOrders <- SignalRaw |>
   filter(Metric == "Time in Orders per Appointment") |>
   filter(GroupData !="Transition") |> 
-  select(StudyID, Value, GroupData, Denominator)
+  select(StudyID, Value, GroupData, Denominator) |> 
+  mutate(ValueD = Value *20/60)
 
-ApptPerMoAIScribesOrders <- LMAllOrders |> 
-  filter(GroupData !="Control") |> 
-  summarize(mean = mean(Denominator))
+#a models will be for time per appointment (mins)
+#d models will be for time per typical full clinic day (hours)
 
-LMOrdersApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllOrders)
+LMOrdersAppa <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllOrders)
+LMOrderscoefa <- tidy(LMOrdersAppa, effects = "fixed") |>
+  mutate(Units = "Minutes per Appointment")
 
-summary(LMOrdersApp)
- LMOrderscoef <- tidy(LMOrdersApp, effects = "fixed") |> 
-  gt()
- LMOrderscoef |> 
+LMOrdersAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllOrders)
+LMOrderscoefd <- tidy(LMOrdersAppd, effects = "fixed") |>
+  mutate(Units = "Hours per Typical Full Clinic Day")
+
+LMOrderscoef <- rbind(LMOrderscoefd, LMOrderscoefa) |> 
+  gt() |> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
                bins= c(1.0,0.15,0.05,0))
+
+LMOrderscoef
 ```
+
 
 ### Time in In Basket
 ```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
 LMAllIB <- SignalRaw |>
   filter(Metric == "Time in In Basket per Appointment") |>
   filter(GroupData !="Transition") |> 
-  select(StudyID, Value, GroupData, Denominator)
+  select(StudyID, Value, GroupData, Denominator) |>   
+  mutate(ValueD = Value *20/60)
 
-ApptPerMoAIScribesIB <- LMAllIB |> 
-  filter(GroupData !="Control") |> 
-  summarize(mean = mean(Denominator))
+#a models will be for time per appointment (mins)
+#d models will be for time per typical full clinic day (hours)
 
-LMIBApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllIB)
+LMIBAppa <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllIB)
 
-summary(LMIBApp)
- LMIBcoef <- tidy(LMIBApp, effects = "fixed") |> 
-  gt()
- LMIBcoef |> 
+LMIBcoefa <- tidy(LMIBAppa, effects = "fixed") |>
+  mutate(Units = "Minutes Per Appointment")
+
+LMIBAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllIB)
+
+LMIBcoefd <- tidy(LMIBAppd, effects = "fixed") |>
+  mutate(Units = "Hours per Typical Full Clinic Day")
+
+ LMIBcoef <- rbind(LMIBcoefd, LMIBcoefa)|>
+   gt() |> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
                bins= c(1.0,0.15,0.05,0))
+ LMIBcoef
 ```
 
-## Time in Notes
+## Time in Notes by TYPE of Visit
+### Model - Just not enough data points in AI Scribe
 ```{r}
-LMAllNotes <- SignalRaw |>
-  filter(Metric == "Time in Notes per Appointment") |>
-  filter(GroupData !="Transition") |> 
-  select(StudyID, Value, GroupData, Denominator)
+#| message: false
+#| warning: false
+#| code-fold: true
 
-ApptPerMoAIScribes <- LMAllNotes |> 
-  filter(GroupData !="Control") |> 
-  summarize(mean = mean(Denominator))
-
-LMNotesApp <- lmer(formula = Value ~ (GroupData) + (1|StudyID), data=LMAllNotes)
-
-summary(LMNotesApp)
- LMNotescoef <- tidy(LMNotesApp, effects = "fixed") |> 
-  gt()
- LMNotescoef |> 
-          data_color(columns = p.value,
-              method = "bin",
-               palette = c("green","yellow","red"),
-               bins= c(1.0,0.15,0.05,0))
-```
-
-
-### Linear Mixed Effect Model for Type of Appointments
-```{r}
 TimeInNotesAll <- SignalRaw |>
   filter(Metric == "Time in Notes per Appointment") |> 
   select(-Metric)
@@ -446,6 +458,8 @@ VisitsPerMo1 <- VisitsRaw |>
                                 Date <= "2025-09-27"~"2025-08-31",
                                 Date <= "2025-10-25"~"2025-09-28",
                                 Date <= "2025-11-29"~"2025-10-26",
+                                Date <= "2025-12-27"~"2025-11-30",
+                                Date <= "2026-01-31"~"2025-12-28", 
                                 T~NA))
 
 
@@ -454,9 +468,8 @@ VisitsPerMo <-  VisitsPerMo1 |>
   group_by(StudyID,StartDate) |> 
   summarise(New = sum(NEW, na.rm =T),
             #Return did not differ from telemed so we combine them
-            Return = sum(RETURN, na.rm =T),
+            Return = sum(RETURN,TELEMED, na.rm =T),
             Other = sum(OTHER, na.rm = T),
-            Telemed = sum(TELEMED, na.rm = T),
             Total = sum(NEW, RETURN, OTHER, TELEMED, na.rm = T)) |> 
   filter(Total>19) |> 
   filter(!is.na(StartDate))
@@ -468,16 +481,14 @@ TimeInNotesLM <- TimeInNotesAll |>
   left_join(VisitsPerMo,join_by(StudyID, StartDate)) |> 
   left_join(KeyUserHigh)
 
-# numbers are off for totals from visits and denominator of total sum of visits. We will need to look at that and take whatever number is more reliable. 
-
 
 NotesData4LMEM = TimeInNotesLM |> 
-  filter(GroupData == "Control") |> 
+  filter(GroupData != "Transition") |> 
   filter(HighUser)
 
 NotesData4LMEM$StudyID <- as_factor(NotesData4LMEM$StudyID)
 
-NotesControlLMEM <- lmer(formula = Numerator ~ (New) + (Return) + (Other) + (Telemed) + (1|StudyID), data=NotesData4LMEM)
+NotesControlLMEM <- lmer(formula = Numerator ~ (New)*(GroupData) + (Return)*GroupData + (Other)*GroupData + (1|StudyID), data=NotesData4LMEM)
 
 
 summary(NotesControlLMEM)				
@@ -485,17 +496,84 @@ summary(NotesControlLMEM)
 
 ```
 
-
-### Graph of Percent Saves and Percent ambient
+## High Likelihood of 90% same day closure in High users\
 ```{r}
-ggplot(TimeInNotes)+
-  geom_boxplot( aes(x = HighUser, y = EstimatedHrsSaved))+
-  coord_flip()
- 
+#| echo: false
+#| message: false
+#| warning: false
+#| results: "hide"
+#| code-fold: true
 
+SamedayClosureRate <- SignalRaw |> 
+  filter(Metric =="Percent of Appointments Closed Same Day") |> 
+  filter(GroupData != "Transition") |>
+  left_join(KeyUserHigh) |>
+  filter(HighUser) |> 
+  mutate(ClosureRate90 = Value>0.90)
+
+ClosureGLM <- glm(ClosureRate90 ~ GroupData, family = binomial,data = SamedayClosureRate)
+resultsClosure<- cbind( Category = "Closure > 90", tidy(ClosureGLM), confint.lm(ClosureGLM)) |> 
+  mutate(OR = exp(estimate),
+         LCL = exp(`2.5 %`),
+         UCL = exp(`97.5 %`)) |> 
+  select(1:2,9:11,6)
+resultsClosure <- resultsClosure %>%
+   mutate(
+    across(
+      where(is.numeric) & !all_of("p.value"),
+      ~ round(.x, 2)) )
+
+resultsClosure |> 
+  gt() |> 
+          data_color(columns = p.value,
+              method = "bin",
+               palette = c("green","yellow","red"),
+               bins= c(1.0,0.15,0.05,0))
 ```
 
+## Figures
 
+### PJ Time
+
+```{r}
+#need to run PJ wowh
+
+GraphPJData <- SignalRaw |>
+  filter(Metric == "Pajama Time")|>
+  filter(GroupData !="Transition") |>
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(PJmontly = sum(Numerator,na.rm =T)) |> 
+  left_join(KeyDenominator, join_by(StudyID,StartDate)) |>
+  mutate(HrsPerDay = PJmontly*20/`per Appointment`/60) |> 
+  select(StudyID, PJmontly, GroupData, HrsPerDay)
+
+BaselinePJDay <- GraphPJData |>
+  filter(GroupData == "Control") |> 
+  group_by(StudyID) |> 
+  summarise(BasePJ = mean(HrsPerDay,na.rm =T))
+
+TransitionDates <- SignalRaw |>
+  filter(Metric == "Pajama Time")|>
+  filter(GroupData =="Transition") |>
+  select(StudyID,TransDate =StartDate)
+
+NormalizedData <- GraphPJData |> 
+  left_join(TransitionDates) |> 
+  left_join(BaselinePJDay) |> 
+  left_join(KeyUserHigh) |>
+  mutate(NormPjHrsDay = HrsPerDay/BasePJ,
+         DaysSinceTrans = as.double(StartDate-TransDate)) |> 
+  group_by(HighUser,DaysSinceTrans) |> 
+  summarise(MeanNormPjHrsDay = mean(NormPjHrsDay))
+         
+  
+ggplot(NormalizedData, aes(DaysSinceTrans, MeanNormPjHrsDay, group = HighUser, color = HighUser))+
+  geom_smooth(se = F)+
+  facet_wrap(vars(HighUser))+
+  geom_hline(yintercept = 1.0,linetype =2)+
+  theme_bw()
+
+```
 
 
 

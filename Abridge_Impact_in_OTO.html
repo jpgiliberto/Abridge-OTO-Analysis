@@ -1,0 +1,3382 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="JP Giliberto and Jen Ren">
+
+<title>Abridge AI Scribe in OTO</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Abridge_Impact_in_OTO_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Abridge_Impact_in_OTO_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Abridge_Impact_in_OTO_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Abridge_Impact_in_OTO_files/libs/quarto-html/popper.min.js"></script>
+<script src="Abridge_Impact_in_OTO_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Abridge_Impact_in_OTO_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Abridge_Impact_in_OTO_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Abridge_Impact_in_OTO_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Abridge_Impact_in_OTO_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Abridge_Impact_in_OTO_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Abridge_Impact_in_OTO_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Abridge AI Scribe in OTO</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>JP Giliberto and Jen Ren </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="wrangle" class="level2">
+<h2 class="anchored" data-anchor-id="wrangle">Wrangle</h2>
+<section id="load-packages" class="level3">
+<h3 class="anchored" data-anchor-id="load-packages">Load Packages</h3>
+</section>
+<section id="load-deid-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-deid-data">Load DeID data</h3>
+</section>
+<section id="create-or-load-keys" class="level3">
+<h3 class="anchored" data-anchor-id="create-or-load-keys">Create or Load Keys</h3>
+<p>##WOWH PJTime and Unscheduled Days **APPs need to be exclude from anything that has time on unscheduled days as they are often scribing for other attendings on unscheduled Days</p>
+</section>
+<section id="wowh-total-reduction---high-users" class="level3">
+<h3 class="anchored" data-anchor-id="wowh-total-reduction---high-users">WOWH total reduction - High Users</h3>
+</section>
+<section id="wowh-pajama-time-high-users" class="level3">
+<h3 class="anchored" data-anchor-id="wowh-pajama-time-high-users">WOWH Pajama Time, High Users</h3>
+</section>
+<section id="wowh-unscheduled-day" class="level3">
+<h3 class="anchored" data-anchor-id="wowh-unscheduled-day">WOWH Unscheduled Day</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>APP <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ID563"</span>,<span class="st">"ID606"</span>,<span class="st">"ID888"</span>,<span class="st">"ID006"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>LMunSchData <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time On Unscheduled Days"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(StudyID <span class="sc">%in%</span> APP)<span class="sc">|&gt;</span> </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate,GroupData) <span class="sc">|&gt;</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Unsch =</span> <span class="fu">sum</span>(Numerator,<span class="at">na.rm =</span>T)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">left_join</span>(KeyDenominator, <span class="fu">join_by</span>(StudyID,StartDate)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># left_join(KeyUserHigh) |&gt; </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a> <span class="co"># filter(HighUser) |&gt; </span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HrsPerDay =</span> Unsch<span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="st">`</span><span class="at">per Appointment</span><span class="st">`</span><span class="sc">/</span><span class="dv">60</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Unsch, GroupData, HrsPerDay)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>LMunSch <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> HrsPerDay <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data =</span> LMunSchData)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a> LMunSchcoef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMunSch, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a> LMunSchcoef <span class="sc">|&gt;</span> </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="ihullmosnc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ihullmosnc table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ihullmosnc thead, #ihullmosnc tbody, #ihullmosnc tfoot, #ihullmosnc tr, #ihullmosnc td, #ihullmosnc th {
+  border-style: none;
+}
+
+#ihullmosnc p {
+  margin: 0;
+  padding: 0;
+}
+
+#ihullmosnc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ihullmosnc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ihullmosnc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ihullmosnc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ihullmosnc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ihullmosnc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ihullmosnc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ihullmosnc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ihullmosnc .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ihullmosnc .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ihullmosnc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ihullmosnc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ihullmosnc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ihullmosnc .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ihullmosnc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihullmosnc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ihullmosnc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ihullmosnc .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ihullmosnc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihullmosnc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ihullmosnc .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihullmosnc .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ihullmosnc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihullmosnc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ihullmosnc .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihullmosnc .gt_left {
+  text-align: left;
+}
+
+#ihullmosnc .gt_center {
+  text-align: center;
+}
+
+#ihullmosnc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ihullmosnc .gt_font_normal {
+  font-weight: normal;
+}
+
+#ihullmosnc .gt_font_bold {
+  font-weight: bold;
+}
+
+#ihullmosnc .gt_font_italic {
+  font-style: italic;
+}
+
+#ihullmosnc .gt_super {
+  font-size: 65%;
+}
+
+#ihullmosnc .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ihullmosnc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ihullmosnc .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ihullmosnc .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ihullmosnc .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ihullmosnc .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ihullmosnc .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">4.471594</td>
+<td class="gt_row gt_right" headers="std.error">2.1745989</td>
+<td class="gt_row gt_right" headers="statistic">2.056285</td>
+<td class="gt_row gt_right" headers="df">2.026083</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #FF0000; color: #FFFFFF">0.1744114</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-1.393701</td>
+<td class="gt_row gt_right" headers="std.error">0.9021471</td>
+<td class="gt_row gt_right" headers="statistic">-1.544871</td>
+<td class="gt_row gt_right" headers="df">81.032765</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #FFFF00; color: #000000">0.1262742</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="time-in-activity" class="level2">
+<h2 class="anchored" data-anchor-id="time-in-activity">Time in Activity</h2>
+<section id="time-in-notes" class="level3">
+<h3 class="anchored" data-anchor-id="time-in-notes">Time in Notes</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>LMAllNotes <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Notes per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>LMNotesAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllNotes)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(LMNotesAppa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Value ~ (GroupData) + (1 | StudyID)
+   Data: LMAllNotes
+
+REML criterion at convergence: 3808.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.4908 -0.1871 -0.0505  0.1464 15.0448 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ StudyID  (Intercept) 48.39    6.957   
+ Residual             12.60    3.550   
+Number of obs: 691, groups:  StudyID, 21
+
+Fixed effects:
+                  Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)         7.5428     1.5253  19.9908   4.945 7.81e-05 ***
+GroupDataAIScribe  -1.3853     0.4052 669.1705  -3.418 0.000668 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+GrpDtAIScrb -0.036</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>LMNotescoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMNotesAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes Per Appointment"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>LMNotesAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllNotes)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(LMNotesAppd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: ValueD ~ (GroupData) + (1 | StudyID)
+   Data: LMAllNotes
+
+REML criterion at convergence: 2294.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.4908 -0.1871 -0.0505  0.1464 15.0448 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ StudyID  (Intercept) 5.377    2.319   
+ Residual             1.400    1.183   
+Number of obs: 691, groups:  StudyID, 21
+
+Fixed effects:
+                  Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)         2.5143     0.5084  19.9908   4.945 7.81e-05 ***
+GroupDataAIScribe  -0.4618     0.1351 669.1705  -3.418 0.000668 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+GrpDtAIScrb -0.036</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>LMNotescoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMNotesAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"hrs per typical day"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a> LMNotescoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMNotescoefd,LMNotescoefa)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a> LMNotescoef <span class="sc">|&gt;</span> </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="papylaqmpv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#papylaqmpv table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#papylaqmpv thead, #papylaqmpv tbody, #papylaqmpv tfoot, #papylaqmpv tr, #papylaqmpv td, #papylaqmpv th {
+  border-style: none;
+}
+
+#papylaqmpv p {
+  margin: 0;
+  padding: 0;
+}
+
+#papylaqmpv .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#papylaqmpv .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#papylaqmpv .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#papylaqmpv .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#papylaqmpv .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#papylaqmpv .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#papylaqmpv .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#papylaqmpv .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#papylaqmpv .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#papylaqmpv .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#papylaqmpv .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#papylaqmpv .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#papylaqmpv .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#papylaqmpv .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#papylaqmpv .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#papylaqmpv .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#papylaqmpv .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#papylaqmpv .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#papylaqmpv .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#papylaqmpv .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#papylaqmpv .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#papylaqmpv .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#papylaqmpv .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#papylaqmpv .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#papylaqmpv .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#papylaqmpv .gt_left {
+  text-align: left;
+}
+
+#papylaqmpv .gt_center {
+  text-align: center;
+}
+
+#papylaqmpv .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#papylaqmpv .gt_font_normal {
+  font-weight: normal;
+}
+
+#papylaqmpv .gt_font_bold {
+  font-weight: bold;
+}
+
+#papylaqmpv .gt_font_italic {
+  font-style: italic;
+}
+
+#papylaqmpv .gt_super {
+  font-size: 65%;
+}
+
+#papylaqmpv .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#papylaqmpv .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#papylaqmpv .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#papylaqmpv .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#papylaqmpv .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#papylaqmpv .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#papylaqmpv .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+<th id="Units" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Units</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">2.514271</td>
+<td class="gt_row gt_right" headers="std.error">0.5084332</td>
+<td class="gt_row gt_right" headers="statistic">4.945136</td>
+<td class="gt_row gt_right" headers="df">19.99077</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">7.807614e-05</td>
+<td class="gt_row gt_left" headers="Units">hrs per typical day</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.461753</td>
+<td class="gt_row gt_right" headers="std.error">0.1350762</td>
+<td class="gt_row gt_right" headers="statistic">-3.418462</td>
+<td class="gt_row gt_right" headers="df">669.17054</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">6.679486e-04</td>
+<td class="gt_row gt_left" headers="Units">hrs per typical day</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">7.542814</td>
+<td class="gt_row gt_right" headers="std.error">1.5252995</td>
+<td class="gt_row gt_right" headers="statistic">4.945136</td>
+<td class="gt_row gt_right" headers="df">19.99077</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">7.807614e-05</td>
+<td class="gt_row gt_left" headers="Units">Minutes Per Appointment</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-1.385259</td>
+<td class="gt_row gt_right" headers="std.error">0.4052287</td>
+<td class="gt_row gt_right" headers="statistic">-3.418462</td>
+<td class="gt_row gt_right" headers="df">669.17054</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">6.679486e-04</td>
+<td class="gt_row gt_left" headers="Units">Minutes Per Appointment</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="time-in-clinical-review" class="level3">
+<h3 class="anchored" data-anchor-id="time-in-clinical-review">Time in Clinical Review</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>LMAllCR <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Clinical Review per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>LMCRAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllCR)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>LMCRcoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMCRAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes per Appointment"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>LMCRAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllCR)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>LMCRcoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMCRAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Day"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                   </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a> LMCRcoef <span class="ot">&lt;-</span>  <span class="fu">rbind</span>(LMCRcoefd, LMCRcoefa) <span class="sc">|&gt;</span> </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a> LMCRcoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="niopkobxyo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#niopkobxyo table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#niopkobxyo thead, #niopkobxyo tbody, #niopkobxyo tfoot, #niopkobxyo tr, #niopkobxyo td, #niopkobxyo th {
+  border-style: none;
+}
+
+#niopkobxyo p {
+  margin: 0;
+  padding: 0;
+}
+
+#niopkobxyo .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#niopkobxyo .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#niopkobxyo .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#niopkobxyo .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#niopkobxyo .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#niopkobxyo .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#niopkobxyo .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#niopkobxyo .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#niopkobxyo .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#niopkobxyo .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#niopkobxyo .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#niopkobxyo .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#niopkobxyo .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#niopkobxyo .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#niopkobxyo .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#niopkobxyo .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#niopkobxyo .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#niopkobxyo .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#niopkobxyo .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#niopkobxyo .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#niopkobxyo .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#niopkobxyo .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#niopkobxyo .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#niopkobxyo .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#niopkobxyo .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#niopkobxyo .gt_left {
+  text-align: left;
+}
+
+#niopkobxyo .gt_center {
+  text-align: center;
+}
+
+#niopkobxyo .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#niopkobxyo .gt_font_normal {
+  font-weight: normal;
+}
+
+#niopkobxyo .gt_font_bold {
+  font-weight: bold;
+}
+
+#niopkobxyo .gt_font_italic {
+  font-style: italic;
+}
+
+#niopkobxyo .gt_super {
+  font-size: 65%;
+}
+
+#niopkobxyo .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#niopkobxyo .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#niopkobxyo .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#niopkobxyo .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#niopkobxyo .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#niopkobxyo .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#niopkobxyo .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+<th id="Units" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Units</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">1.08865451</td>
+<td class="gt_row gt_right" headers="std.error">0.15582321</td>
+<td class="gt_row gt_right" headers="statistic">6.9864723</td>
+<td class="gt_row gt_right" headers="df">20.02562</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">8.778349e-07</td>
+<td class="gt_row gt_left" headers="Units">Hours per Typical Day</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.04190946</td>
+<td class="gt_row gt_right" headers="std.error">0.04753505</td>
+<td class="gt_row gt_right" headers="statistic">-0.8816537</td>
+<td class="gt_row gt_right" headers="df">669.26213</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #FF0000; color: #FFFFFF">3.782806e-01</td>
+<td class="gt_row gt_left" headers="Units">Hours per Typical Day</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">3.26596352</td>
+<td class="gt_row gt_right" headers="std.error">0.46746962</td>
+<td class="gt_row gt_right" headers="statistic">6.9864723</td>
+<td class="gt_row gt_right" headers="df">20.02562</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">8.778349e-07</td>
+<td class="gt_row gt_left" headers="Units">Minutes per Appointment</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.12572837</td>
+<td class="gt_row gt_right" headers="std.error">0.14260516</td>
+<td class="gt_row gt_right" headers="statistic">-0.8816537</td>
+<td class="gt_row gt_right" headers="df">669.26213</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #FF0000; color: #FFFFFF">3.782806e-01</td>
+<td class="gt_row gt_left" headers="Units">Minutes per Appointment</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="time-in-orders" class="level3">
+<h3 class="anchored" data-anchor-id="time-in-orders">Time in Orders</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>LMAllOrders <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Orders per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>LMOrdersAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllOrders)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>LMOrderscoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMOrdersAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes per Appointment"</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>LMOrdersAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllOrders)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>LMOrderscoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMOrdersAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Full Clinic Day"</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>LMOrderscoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMOrderscoefd, LMOrderscoefa) <span class="sc">|&gt;</span> </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>LMOrderscoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="oobcelzzaw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#oobcelzzaw table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#oobcelzzaw thead, #oobcelzzaw tbody, #oobcelzzaw tfoot, #oobcelzzaw tr, #oobcelzzaw td, #oobcelzzaw th {
+  border-style: none;
+}
+
+#oobcelzzaw p {
+  margin: 0;
+  padding: 0;
+}
+
+#oobcelzzaw .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#oobcelzzaw .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#oobcelzzaw .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#oobcelzzaw .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#oobcelzzaw .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#oobcelzzaw .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#oobcelzzaw .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#oobcelzzaw .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#oobcelzzaw .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#oobcelzzaw .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#oobcelzzaw .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#oobcelzzaw .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#oobcelzzaw .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#oobcelzzaw .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#oobcelzzaw .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oobcelzzaw .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#oobcelzzaw .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#oobcelzzaw .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#oobcelzzaw .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oobcelzzaw .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#oobcelzzaw .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oobcelzzaw .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#oobcelzzaw .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oobcelzzaw .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#oobcelzzaw .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oobcelzzaw .gt_left {
+  text-align: left;
+}
+
+#oobcelzzaw .gt_center {
+  text-align: center;
+}
+
+#oobcelzzaw .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#oobcelzzaw .gt_font_normal {
+  font-weight: normal;
+}
+
+#oobcelzzaw .gt_font_bold {
+  font-weight: bold;
+}
+
+#oobcelzzaw .gt_font_italic {
+  font-style: italic;
+}
+
+#oobcelzzaw .gt_super {
+  font-size: 65%;
+}
+
+#oobcelzzaw .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#oobcelzzaw .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#oobcelzzaw .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#oobcelzzaw .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#oobcelzzaw .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#oobcelzzaw .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#oobcelzzaw .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+<th id="Units" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Units</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">0.54523176</td>
+<td class="gt_row gt_right" headers="std.error">0.06796855</td>
+<td class="gt_row gt_right" headers="statistic">8.0218240</td>
+<td class="gt_row gt_right" headers="df">20.04338</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">1.100448e-07</td>
+<td class="gt_row gt_left" headers="Units">Hours per Typical Full Clinic Day</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.01466079</td>
+<td class="gt_row gt_right" headers="std.error">0.02419193</td>
+<td class="gt_row gt_right" headers="statistic">-0.6060198</td>
+<td class="gt_row gt_right" headers="df">669.36484</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #FF0000; color: #FFFFFF">5.447070e-01</td>
+<td class="gt_row gt_left" headers="Units">Hours per Typical Full Clinic Day</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">1.63569529</td>
+<td class="gt_row gt_right" headers="std.error">0.20390566</td>
+<td class="gt_row gt_right" headers="statistic">8.0218240</td>
+<td class="gt_row gt_right" headers="df">20.04338</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">1.100448e-07</td>
+<td class="gt_row gt_left" headers="Units">Minutes per Appointment</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.04398237</td>
+<td class="gt_row gt_right" headers="std.error">0.07257579</td>
+<td class="gt_row gt_right" headers="statistic">-0.6060198</td>
+<td class="gt_row gt_right" headers="df">669.36484</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #FF0000; color: #FFFFFF">5.447070e-01</td>
+<td class="gt_row gt_left" headers="Units">Minutes per Appointment</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="time-in-in-basket" class="level3">
+<h3 class="anchored" data-anchor-id="time-in-in-basket">Time in In Basket</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>LMAllIB <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in In Basket per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span>   </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>LMIBAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllIB)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>LMIBcoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMIBAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes Per Appointment"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>LMIBAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllIB)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>LMIBcoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMIBAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Full Clinic Day"</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a> LMIBcoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMIBcoefd, LMIBcoefa)<span class="sc">|&gt;</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a> LMIBcoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="ghznqhqsgc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ghznqhqsgc table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ghznqhqsgc thead, #ghznqhqsgc tbody, #ghznqhqsgc tfoot, #ghznqhqsgc tr, #ghznqhqsgc td, #ghznqhqsgc th {
+  border-style: none;
+}
+
+#ghznqhqsgc p {
+  margin: 0;
+  padding: 0;
+}
+
+#ghznqhqsgc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ghznqhqsgc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ghznqhqsgc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ghznqhqsgc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ghznqhqsgc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ghznqhqsgc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ghznqhqsgc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ghznqhqsgc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ghznqhqsgc .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ghznqhqsgc .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ghznqhqsgc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ghznqhqsgc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ghznqhqsgc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ghznqhqsgc .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ghznqhqsgc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ghznqhqsgc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ghznqhqsgc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ghznqhqsgc .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ghznqhqsgc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ghznqhqsgc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ghznqhqsgc .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ghznqhqsgc .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ghznqhqsgc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ghznqhqsgc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ghznqhqsgc .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ghznqhqsgc .gt_left {
+  text-align: left;
+}
+
+#ghznqhqsgc .gt_center {
+  text-align: center;
+}
+
+#ghznqhqsgc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ghznqhqsgc .gt_font_normal {
+  font-weight: normal;
+}
+
+#ghznqhqsgc .gt_font_bold {
+  font-weight: bold;
+}
+
+#ghznqhqsgc .gt_font_italic {
+  font-style: italic;
+}
+
+#ghznqhqsgc .gt_super {
+  font-size: 65%;
+}
+
+#ghznqhqsgc .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ghznqhqsgc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ghznqhqsgc .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ghznqhqsgc .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ghznqhqsgc .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ghznqhqsgc .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ghznqhqsgc .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+<th id="Units" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Units</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">0.8425757</td>
+<td class="gt_row gt_right" headers="std.error">0.13466306</td>
+<td class="gt_row gt_right" headers="statistic">6.256918</td>
+<td class="gt_row gt_right" headers="df">20.05608</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">4.086089e-06</td>
+<td class="gt_row gt_left" headers="Units">Hours per Typical Full Clinic Day</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">0.1069484</td>
+<td class="gt_row gt_right" headers="std.error">0.04296002</td>
+<td class="gt_row gt_right" headers="statistic">2.489487</td>
+<td class="gt_row gt_right" headers="df">669.31419</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">1.303446e-02</td>
+<td class="gt_row gt_left" headers="Units">Hours per Typical Full Clinic Day</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">2.5277272</td>
+<td class="gt_row gt_right" headers="std.error">0.40398919</td>
+<td class="gt_row gt_right" headers="statistic">6.256918</td>
+<td class="gt_row gt_right" headers="df">20.05608</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">4.086089e-06</td>
+<td class="gt_row gt_left" headers="Units">Minutes Per Appointment</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">0.3208453</td>
+<td class="gt_row gt_right" headers="std.error">0.12888006</td>
+<td class="gt_row gt_right" headers="statistic">2.489487</td>
+<td class="gt_row gt_right" headers="df">669.31419</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">1.303446e-02</td>
+<td class="gt_row gt_left" headers="Units">Minutes Per Appointment</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="time-in-notes-by-type-of-visit" class="level2">
+<h2 class="anchored" data-anchor-id="time-in-notes-by-type-of-visit">Time in Notes by TYPE of Visit</h2>
+<section id="model---just-not-enough-data-points-in-ai-scribe" class="level3">
+<h3 class="anchored" data-anchor-id="model---just-not-enough-data-points-in-ai-scribe">Model - Just not enough data points in AI Scribe</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>TimeInNotesAll <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Notes per Appointment"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Metric)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>VisitsPerMo1 <span class="ot">&lt;-</span> VisitsRaw <span class="sc">|&gt;</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">StartDate =</span> <span class="fu">case_when</span>( Date <span class="sc">&lt;=</span> <span class="st">"2022-12-31"</span><span class="sc">~</span><span class="st">"2022-11-27"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-01-28"</span><span class="sc">~</span><span class="st">"2023-01-01"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-02-25"</span><span class="sc">~</span><span class="st">"2023-01-29"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-03-25"</span><span class="sc">~</span><span class="st">"2023-02-26"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-04-29"</span><span class="sc">~</span><span class="st">"2023-03-26"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-05-27"</span><span class="sc">~</span><span class="st">"2023-04-30"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-06-24"</span><span class="sc">~</span><span class="st">"2023-05-28"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-07-29"</span><span class="sc">~</span><span class="st">"2023-06-25"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-08-26"</span><span class="sc">~</span><span class="st">"2023-07-30"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-09-30"</span><span class="sc">~</span><span class="st">"2023-08-27"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-10-28"</span><span class="sc">~</span><span class="st">"2023-10-01"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-11-25"</span><span class="sc">~</span><span class="st">"2023-10-29"</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-12-30"</span><span class="sc">~</span><span class="st">"2023-11-26"</span>,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-01-27"</span><span class="sc">~</span><span class="st">"2023-12-31"</span>,</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-02-24"</span><span class="sc">~</span><span class="st">"2024-01-28"</span>,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-03-30"</span><span class="sc">~</span><span class="st">"2024-02-25"</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-04-27"</span><span class="sc">~</span><span class="st">"2024-03-31"</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-05-25"</span><span class="sc">~</span><span class="st">"2024-04-28"</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-06-29"</span><span class="sc">~</span><span class="st">"2024-05-26"</span>,</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-07-27"</span><span class="sc">~</span><span class="st">"2024-06-30"</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-08-31"</span><span class="sc">~</span><span class="st">"2024-07-28"</span>,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-09-28"</span><span class="sc">~</span><span class="st">"2024-09-01"</span>,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-10-26"</span><span class="sc">~</span><span class="st">"2024-09-29"</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-11-30"</span><span class="sc">~</span><span class="st">"2024-10-27"</span>,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-12-28"</span><span class="sc">~</span><span class="st">"2024-12-01"</span>,</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-01-25"</span><span class="sc">~</span><span class="st">"2024-12-29"</span>,</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-02-22"</span><span class="sc">~</span><span class="st">"2025-01-26"</span>,</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-03-29"</span><span class="sc">~</span><span class="st">"2025-02-23"</span>,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-04-26"</span><span class="sc">~</span><span class="st">"2025-03-30"</span>,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-05-31"</span><span class="sc">~</span><span class="st">"2025-04-27"</span>,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-06-28"</span><span class="sc">~</span><span class="st">"2025-06-01"</span>,</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-07-26"</span><span class="sc">~</span><span class="st">"2025-06-29"</span>,</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-08-30"</span><span class="sc">~</span><span class="st">"2025-07-27"</span>,</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-09-27"</span><span class="sc">~</span><span class="st">"2025-08-31"</span>,</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-10-25"</span><span class="sc">~</span><span class="st">"2025-09-28"</span>,</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-11-29"</span><span class="sc">~</span><span class="st">"2025-10-26"</span>,</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-12-27"</span><span class="sc">~</span><span class="st">"2025-11-30"</span>,</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2026-01-31"</span><span class="sc">~</span><span class="st">"2025-12-28"</span>, </span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>                                T<span class="sc">~</span><span class="cn">NA</span>))</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>VisitsPerMo <span class="ot">&lt;-</span>  VisitsPerMo1 <span class="sc">|&gt;</span> </span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate) <span class="sc">|&gt;</span> </span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">New =</span> <span class="fu">sum</span>(NEW, <span class="at">na.rm =</span>T),</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Return did not differ from telemed so we combine them</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>            <span class="at">Return =</span> <span class="fu">sum</span>(RETURN,TELEMED, <span class="at">na.rm =</span>T),</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>            <span class="at">Other =</span> <span class="fu">sum</span>(OTHER, <span class="at">na.rm =</span> T),</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>            <span class="at">Total =</span> <span class="fu">sum</span>(NEW, RETURN, OTHER, TELEMED, <span class="at">na.rm =</span> T)) <span class="sc">|&gt;</span> </span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Total<span class="sc">&gt;</span><span class="dv">19</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(StartDate))</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>VisitsPerMo<span class="sc">$</span>StartDate <span class="ot">&lt;-</span> <span class="fu">ymd</span>(VisitsPerMo<span class="sc">$</span>StartDate, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>TimeInNotesLM <span class="ot">&lt;-</span> TimeInNotesAll <span class="sc">|&gt;</span> </span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(VisitsPerMo,<span class="fu">join_by</span>(StudyID, StartDate)) <span class="sc">|&gt;</span> </span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyUserHigh)</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>NotesData4LMEM <span class="ot">=</span> TimeInNotesLM <span class="sc">|&gt;</span> </span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span> <span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HighUser)</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>NotesData4LMEM<span class="sc">$</span>StudyID <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(NotesData4LMEM<span class="sc">$</span>StudyID)</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>NotesControlLMEM <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Numerator <span class="sc">~</span> (New)<span class="sc">*</span>(GroupData) <span class="sc">+</span> (Return)<span class="sc">*</span>GroupData <span class="sc">+</span> (Other)<span class="sc">*</span>GroupData <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>NotesData4LMEM)</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(NotesControlLMEM)               </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Numerator ~ (New) * (GroupData) + (Return) * GroupData + (Other) *  
+    GroupData + (1 | StudyID)
+   Data: NotesData4LMEM
+
+REML criterion at convergence: 2593.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.5311 -0.3335 -0.0123  0.3309  4.4928 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ StudyID  (Intercept) 356687   597.2   
+ Residual              35436   188.2   
+Number of obs: 196, groups:  StudyID, 6
+
+Fixed effects:
+                         Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)               362.967    249.741   5.435   1.453   0.2013    
+New                         7.662      1.416 185.154   5.412 1.92e-07 ***
+GroupDataAIScribe         -59.389    120.653 183.044  -0.492   0.6231    
+Return                      2.023      1.173 184.866   1.724   0.0863 .  
+Other                       2.784      2.670 184.868   1.043   0.2984    
+New:GroupDataAIScribe       4.670      4.615 183.155   1.012   0.3130    
+GroupDataAIScribe:Return   -3.167      2.531 183.096  -1.251   0.2125    
+GroupDataAIScribe:Other     4.075      7.319 183.108   0.557   0.5783    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) New    GrDAIS Return Other  N:GDAI GDAIS:R
+New         -0.049                                           
+GrpDtAIScrb -0.052 -0.063                                    
+Return      -0.097 -0.495  0.204                             
+Other       -0.085 -0.206  0.067 -0.155                      
+Nw:GrpDtAIS -0.012 -0.087  0.328  0.037  0.140               
+GrpDtAISc:R  0.035  0.156 -0.762 -0.257 -0.049 -0.620        
+GrpDtAISc:O  0.022  0.089 -0.500 -0.057 -0.175 -0.756  0.373 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="likelihood-closure-same-day" class="level2">
+<h2 class="anchored" data-anchor-id="likelihood-closure-same-day">Likelihood closure same day</h2>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
