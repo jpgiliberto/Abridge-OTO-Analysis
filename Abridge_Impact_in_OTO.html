@@ -119,57 +119,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="wowh-total-reduction---high-users" class="level3">
 <h3 class="anchored" data-anchor-id="wowh-total-reduction---high-users">WOWH total reduction - High Users</h3>
-</section>
-<section id="wowh-pajama-time-high-users" class="level3">
-<h3 class="anchored" data-anchor-id="wowh-pajama-time-high-users">WOWH Pajama Time, High Users</h3>
-</section>
-<section id="wowh-unscheduled-day" class="level3">
-<h3 class="anchored" data-anchor-id="wowh-unscheduled-day">WOWH Unscheduled Day</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>APP <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ID563"</span>,<span class="st">"ID606"</span>,<span class="st">"ID888"</span>,<span class="st">"ID006"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>LMunSchData <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time On Unscheduled Days"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>LMWOWHData <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Pajama Time"</span> <span class="sc">|</span> Metric <span class="sc">==</span> <span class="st">"Time On Unscheduled Days"</span>)<span class="sc">|&gt;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(StudyID <span class="sc">%in%</span> APP)<span class="sc">|&gt;</span> </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>StudyID <span class="sc">%in%</span> APP)<span class="sc">|&gt;</span> </span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate,GroupData) <span class="sc">|&gt;</span> </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Unsch =</span> <span class="fu">sum</span>(Numerator,<span class="at">na.rm =</span>T)) <span class="sc">|&gt;</span> </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">left_join</span>(KeyDenominator, <span class="fu">join_by</span>(StudyID,StartDate)) <span class="sc">|&gt;</span> </span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># left_join(KeyUserHigh) |&gt; </span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a> <span class="co"># filter(HighUser) |&gt; </span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HrsPerDay =</span> Unsch<span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="st">`</span><span class="at">per Appointment</span><span class="st">`</span><span class="sc">/</span><span class="dv">60</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Unsch, GroupData, HrsPerDay)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">WOWHmontly =</span> <span class="fu">sum</span>(Numerator,<span class="at">na.rm =</span>T)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyDenominator, <span class="fu">join_by</span>(StudyID,StartDate)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyUserHigh) <span class="sc">|&gt;</span> </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HighUser) <span class="sc">|&gt;</span> </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HrsPerDay =</span> WOWHmontly<span class="sc">/</span><span class="st">`</span><span class="at">per Appointment</span><span class="st">`</span><span class="sc">/</span><span class="dv">60</span><span class="sc">*</span><span class="dv">20</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, WOWHmontly, GroupData, HrsPerDay)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>LMunSch <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> HrsPerDay <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data =</span> LMunSchData)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>LMWOWH <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> HrsPerDay <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data =</span> LMWOWHData)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a> LMunSchcoef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMunSch, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a> LMWOWHcoef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMWOWH, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a> LMunSchcoef <span class="sc">|&gt;</span> </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a> LMWOWHcoef <span class="sc">|&gt;</span> </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>       <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="ihullmosnc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ihullmosnc table {
+<div id="gblggeinju" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#gblggeinju table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ihullmosnc thead, #ihullmosnc tbody, #ihullmosnc tfoot, #ihullmosnc tr, #ihullmosnc td, #ihullmosnc th {
+#gblggeinju thead, #gblggeinju tbody, #gblggeinju tfoot, #gblggeinju tr, #gblggeinju td, #gblggeinju th {
   border-style: none;
 }
 
-#ihullmosnc p {
+#gblggeinju p {
   margin: 0;
   padding: 0;
 }
 
-#ihullmosnc .gt_table {
+#gblggeinju .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -195,12 +189,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_caption {
+#gblggeinju .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ihullmosnc .gt_title {
+#gblggeinju .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -212,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#ihullmosnc .gt_subtitle {
+#gblggeinju .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -224,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#ihullmosnc .gt_heading {
+#gblggeinju .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -236,13 +230,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_bottom_border {
+#gblggeinju .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_col_headings {
+#gblggeinju .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -257,7 +251,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_col_heading {
+#gblggeinju .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -277,7 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#ihullmosnc .gt_column_spanner_outer {
+#gblggeinju .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -289,15 +283,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#ihullmosnc .gt_column_spanner_outer:first-child {
+#gblggeinju .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ihullmosnc .gt_column_spanner_outer:last-child {
+#gblggeinju .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ihullmosnc .gt_column_spanner {
+#gblggeinju .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -309,11 +303,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#ihullmosnc .gt_spanner_row {
+#gblggeinju .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ihullmosnc .gt_group_heading {
+#gblggeinju .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -339,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#ihullmosnc .gt_empty_group_heading {
+#gblggeinju .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -354,15 +348,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#ihullmosnc .gt_from_md > :first-child {
+#gblggeinju .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ihullmosnc .gt_from_md > :last-child {
+#gblggeinju .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ihullmosnc .gt_row {
+#gblggeinju .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -381,7 +375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#ihullmosnc .gt_stub {
+#gblggeinju .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -394,7 +388,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#ihullmosnc .gt_stub_row_group {
+#gblggeinju .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -408,15 +402,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#ihullmosnc .gt_row_group_first td {
+#gblggeinju .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ihullmosnc .gt_row_group_first th {
+#gblggeinju .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ihullmosnc .gt_summary_row {
+#gblggeinju .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -426,16 +420,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#ihullmosnc .gt_first_summary_row {
+#gblggeinju .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_first_summary_row.thick {
+#gblggeinju .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ihullmosnc .gt_last_summary_row {
+#gblggeinju .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -445,7 +439,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_grand_summary_row {
+#gblggeinju .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -455,7 +449,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#ihullmosnc .gt_first_grand_summary_row {
+#gblggeinju .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -465,7 +459,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_last_grand_summary_row_top {
+#gblggeinju .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -475,11 +469,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_striped {
+#gblggeinju .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ihullmosnc .gt_table_body {
+#gblggeinju .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -488,7 +482,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_footnotes {
+#gblggeinju .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -502,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_footnote {
+#gblggeinju .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -511,7 +505,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#ihullmosnc .gt_sourcenotes {
+#gblggeinju .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -525,7 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#ihullmosnc .gt_sourcenote {
+#gblggeinju .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -533,63 +527,1078 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#ihullmosnc .gt_left {
+#gblggeinju .gt_left {
   text-align: left;
 }
 
-#ihullmosnc .gt_center {
+#gblggeinju .gt_center {
   text-align: center;
 }
 
-#ihullmosnc .gt_right {
+#gblggeinju .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ihullmosnc .gt_font_normal {
+#gblggeinju .gt_font_normal {
   font-weight: normal;
 }
 
-#ihullmosnc .gt_font_bold {
+#gblggeinju .gt_font_bold {
   font-weight: bold;
 }
 
-#ihullmosnc .gt_font_italic {
+#gblggeinju .gt_font_italic {
   font-style: italic;
 }
 
-#ihullmosnc .gt_super {
+#gblggeinju .gt_super {
   font-size: 65%;
 }
 
-#ihullmosnc .gt_footnote_marks {
+#gblggeinju .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ihullmosnc .gt_asterisk {
+#gblggeinju .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ihullmosnc .gt_indent_1 {
+#gblggeinju .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ihullmosnc .gt_indent_2 {
+#gblggeinju .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ihullmosnc .gt_indent_3 {
+#gblggeinju .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ihullmosnc .gt_indent_4 {
+#gblggeinju .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ihullmosnc .gt_indent_5 {
+#gblggeinju .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">2.6772711</td>
+<td class="gt_row gt_right" headers="std.error">0.3745799</td>
+<td class="gt_row gt_right" headers="statistic">7.147396</td>
+<td class="gt_row gt_right" headers="df">2.03738</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">0.01809022</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.5010318</td>
+<td class="gt_row gt_right" headers="std.error">0.2110439</td>
+<td class="gt_row gt_right" headers="statistic">-2.374065</td>
+<td class="gt_row gt_right" headers="df">107.51417</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">0.01936732</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="wowh-pajama-time-high-users" class="level3">
+<h3 class="anchored" data-anchor-id="wowh-pajama-time-high-users">WOWH Pajama Time, High Users</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>LMPJData <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Pajama Time"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate,GroupData) <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">PJmontly =</span> <span class="fu">sum</span>(Numerator,<span class="at">na.rm =</span>T)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyDenominator, <span class="fu">join_by</span>(StudyID,StartDate)) <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyUserHigh) <span class="sc">|&gt;</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HighUser) <span class="sc">|&gt;</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HrsPerDay =</span> PJmontly<span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="st">`</span><span class="at">per Appointment</span><span class="st">`</span><span class="sc">/</span><span class="dv">60</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, PJmontly, GroupData, HrsPerDay)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>LMPJ <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> HrsPerDay <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data =</span> LMPJData)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a> LMPJcoef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMPJ, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a> LMPJcoef <span class="sc">|&gt;</span> </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>           <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="kkqmtnrrla" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kkqmtnrrla table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#kkqmtnrrla thead, #kkqmtnrrla tbody, #kkqmtnrrla tfoot, #kkqmtnrrla tr, #kkqmtnrrla td, #kkqmtnrrla th {
+  border-style: none;
+}
+
+#kkqmtnrrla p {
+  margin: 0;
+  padding: 0;
+}
+
+#kkqmtnrrla .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#kkqmtnrrla .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#kkqmtnrrla .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#kkqmtnrrla .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#kkqmtnrrla .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#kkqmtnrrla .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#kkqmtnrrla .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#kkqmtnrrla .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#kkqmtnrrla .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#kkqmtnrrla .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#kkqmtnrrla .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#kkqmtnrrla .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#kkqmtnrrla .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#kkqmtnrrla .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#kkqmtnrrla .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kkqmtnrrla .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#kkqmtnrrla .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#kkqmtnrrla .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#kkqmtnrrla .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kkqmtnrrla .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#kkqmtnrrla .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kkqmtnrrla .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#kkqmtnrrla .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kkqmtnrrla .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#kkqmtnrrla .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kkqmtnrrla .gt_left {
+  text-align: left;
+}
+
+#kkqmtnrrla .gt_center {
+  text-align: center;
+}
+
+#kkqmtnrrla .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#kkqmtnrrla .gt_font_normal {
+  font-weight: normal;
+}
+
+#kkqmtnrrla .gt_font_bold {
+  font-weight: bold;
+}
+
+#kkqmtnrrla .gt_font_italic {
+  font-style: italic;
+}
+
+#kkqmtnrrla .gt_super {
+  font-size: 65%;
+}
+
+#kkqmtnrrla .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#kkqmtnrrla .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#kkqmtnrrla .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#kkqmtnrrla .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#kkqmtnrrla .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#kkqmtnrrla .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#kkqmtnrrla .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="effect" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">effect</th>
+<th id="term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">term</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">estimate</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">std.error</th>
+<th id="statistic" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">statistic</th>
+<th id="df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">df</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p.value</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">(Intercept)</td>
+<td class="gt_row gt_right" headers="estimate">1.3907398</td>
+<td class="gt_row gt_right" headers="std.error">0.3839335</td>
+<td class="gt_row gt_right" headers="statistic">3.622346</td>
+<td class="gt_row gt_right" headers="df">5.003747</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">0.015162361</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="effect">fixed</td>
+<td class="gt_row gt_left" headers="term">GroupDataAIScribe</td>
+<td class="gt_row gt_right" headers="estimate">-0.4914945</td>
+<td class="gt_row gt_right" headers="std.error">0.1489231</td>
+<td class="gt_row gt_right" headers="statistic">-3.300323</td>
+<td class="gt_row gt_right" headers="df">181.238728</td>
+<td class="gt_row gt_right" headers="p.value" style="background-color: #00FF00; color: #000000">0.001162898</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="wowh-unscheduled-day" class="level3">
+<h3 class="anchored" data-anchor-id="wowh-unscheduled-day">WOWH Unscheduled Day</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>APP <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ID563"</span>,<span class="st">"ID606"</span>,<span class="st">"ID888"</span>,<span class="st">"ID006"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>LMunSchData <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time On Unscheduled Days"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(StudyID <span class="sc">%in%</span> APP)<span class="sc">|&gt;</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate,GroupData) <span class="sc">|&gt;</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Unsch =</span> <span class="fu">sum</span>(Numerator,<span class="at">na.rm =</span>T)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">left_join</span>(KeyDenominator, <span class="fu">join_by</span>(StudyID,StartDate)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># left_join(KeyUserHigh) |&gt; </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a> <span class="co"># filter(HighUser) |&gt; </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HrsPerDay =</span> Unsch<span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="st">`</span><span class="at">per Appointment</span><span class="st">`</span><span class="sc">/</span><span class="dv">60</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Unsch, GroupData, HrsPerDay)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>LMunSch <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> HrsPerDay <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data =</span> LMunSchData)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a> LMunSchcoef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMunSch, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a> LMunSchcoef <span class="sc">|&gt;</span> </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="pvoqevqszb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#pvoqevqszb table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#pvoqevqszb thead, #pvoqevqszb tbody, #pvoqevqszb tfoot, #pvoqevqszb tr, #pvoqevqszb td, #pvoqevqszb th {
+  border-style: none;
+}
+
+#pvoqevqszb p {
+  margin: 0;
+  padding: 0;
+}
+
+#pvoqevqszb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#pvoqevqszb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#pvoqevqszb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#pvoqevqszb .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#pvoqevqszb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#pvoqevqszb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#pvoqevqszb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#pvoqevqszb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#pvoqevqszb .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#pvoqevqszb .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#pvoqevqszb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#pvoqevqszb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#pvoqevqszb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#pvoqevqszb .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#pvoqevqszb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pvoqevqszb .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#pvoqevqszb .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#pvoqevqszb .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#pvoqevqszb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pvoqevqszb .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#pvoqevqszb .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pvoqevqszb .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#pvoqevqszb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pvoqevqszb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pvoqevqszb .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pvoqevqszb .gt_left {
+  text-align: left;
+}
+
+#pvoqevqszb .gt_center {
+  text-align: center;
+}
+
+#pvoqevqszb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pvoqevqszb .gt_font_normal {
+  font-weight: normal;
+}
+
+#pvoqevqszb .gt_font_bold {
+  font-weight: bold;
+}
+
+#pvoqevqszb .gt_font_italic {
+  font-style: italic;
+}
+
+#pvoqevqszb .gt_super {
+  font-size: 65%;
+}
+
+#pvoqevqszb .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#pvoqevqszb .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#pvoqevqszb .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#pvoqevqszb .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#pvoqevqszb .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#pvoqevqszb .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#pvoqevqszb .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -640,18 +1649,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>LMAllNotes <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Notes per Appointment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>LMNotesAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllNotes)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(LMNotesAppa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>LMAllNotes <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Notes per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>LMNotesAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllNotes)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(LMNotesAppa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -684,12 +1693,12 @@ GrpDtAIScrb -0.036</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>LMNotescoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMNotesAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes Per Appointment"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>LMNotesAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllNotes)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(LMNotesAppd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>LMNotescoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMNotesAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes Per Appointment"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>LMNotesAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllNotes)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(LMNotesAppd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -722,36 +1731,36 @@ GrpDtAIScrb -0.036</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>LMNotescoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMNotesAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"hrs per typical day"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a> LMNotescoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMNotescoefd,LMNotescoefa)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a> LMNotescoef <span class="sc">|&gt;</span> </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>LMNotescoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMNotesAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"hrs per typical day"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a> LMNotescoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMNotescoefd,LMNotescoefa)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a> LMNotescoef <span class="sc">|&gt;</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="papylaqmpv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#papylaqmpv table {
+<div id="vxmsrtytjs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vxmsrtytjs table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#papylaqmpv thead, #papylaqmpv tbody, #papylaqmpv tfoot, #papylaqmpv tr, #papylaqmpv td, #papylaqmpv th {
+#vxmsrtytjs thead, #vxmsrtytjs tbody, #vxmsrtytjs tfoot, #vxmsrtytjs tr, #vxmsrtytjs td, #vxmsrtytjs th {
   border-style: none;
 }
 
-#papylaqmpv p {
+#vxmsrtytjs p {
   margin: 0;
   padding: 0;
 }
 
-#papylaqmpv .gt_table {
+#vxmsrtytjs .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -777,12 +1786,12 @@ GrpDtAIScrb -0.036</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_caption {
+#vxmsrtytjs .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#papylaqmpv .gt_title {
+#vxmsrtytjs .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -794,7 +1803,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-width: 0;
 }
 
-#papylaqmpv .gt_subtitle {
+#vxmsrtytjs .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -806,7 +1815,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-width: 0;
 }
 
-#papylaqmpv .gt_heading {
+#vxmsrtytjs .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -818,13 +1827,13 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_bottom_border {
+#vxmsrtytjs .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_col_headings {
+#vxmsrtytjs .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -839,7 +1848,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_col_heading {
+#vxmsrtytjs .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -859,7 +1868,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#papylaqmpv .gt_column_spanner_outer {
+#vxmsrtytjs .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -871,15 +1880,15 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 4px;
 }
 
-#papylaqmpv .gt_column_spanner_outer:first-child {
+#vxmsrtytjs .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#papylaqmpv .gt_column_spanner_outer:last-child {
+#vxmsrtytjs .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#papylaqmpv .gt_column_spanner {
+#vxmsrtytjs .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -891,11 +1900,11 @@ GrpDtAIScrb -0.036</code></pre>
   width: 100%;
 }
 
-#papylaqmpv .gt_spanner_row {
+#vxmsrtytjs .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#papylaqmpv .gt_group_heading {
+#vxmsrtytjs .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -921,7 +1930,7 @@ GrpDtAIScrb -0.036</code></pre>
   text-align: left;
 }
 
-#papylaqmpv .gt_empty_group_heading {
+#vxmsrtytjs .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -936,15 +1945,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: middle;
 }
 
-#papylaqmpv .gt_from_md > :first-child {
+#vxmsrtytjs .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#papylaqmpv .gt_from_md > :last-child {
+#vxmsrtytjs .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#papylaqmpv .gt_row {
+#vxmsrtytjs .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -963,7 +1972,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#papylaqmpv .gt_stub {
+#vxmsrtytjs .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -976,7 +1985,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#papylaqmpv .gt_stub_row_group {
+#vxmsrtytjs .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -990,15 +1999,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: top;
 }
 
-#papylaqmpv .gt_row_group_first td {
+#vxmsrtytjs .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#papylaqmpv .gt_row_group_first th {
+#vxmsrtytjs .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#papylaqmpv .gt_summary_row {
+#vxmsrtytjs .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1008,16 +2017,16 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#papylaqmpv .gt_first_summary_row {
+#vxmsrtytjs .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_first_summary_row.thick {
+#vxmsrtytjs .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#papylaqmpv .gt_last_summary_row {
+#vxmsrtytjs .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1027,7 +2036,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_grand_summary_row {
+#vxmsrtytjs .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1037,7 +2046,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#papylaqmpv .gt_first_grand_summary_row {
+#vxmsrtytjs .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1047,7 +2056,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_last_grand_summary_row_top {
+#vxmsrtytjs .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1057,11 +2066,11 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_striped {
+#vxmsrtytjs .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#papylaqmpv .gt_table_body {
+#vxmsrtytjs .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1070,7 +2079,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_footnotes {
+#vxmsrtytjs .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1084,7 +2093,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_footnote {
+#vxmsrtytjs .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1093,7 +2102,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#papylaqmpv .gt_sourcenotes {
+#vxmsrtytjs .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1107,7 +2116,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#papylaqmpv .gt_sourcenote {
+#vxmsrtytjs .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1115,63 +2124,63 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#papylaqmpv .gt_left {
+#vxmsrtytjs .gt_left {
   text-align: left;
 }
 
-#papylaqmpv .gt_center {
+#vxmsrtytjs .gt_center {
   text-align: center;
 }
 
-#papylaqmpv .gt_right {
+#vxmsrtytjs .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#papylaqmpv .gt_font_normal {
+#vxmsrtytjs .gt_font_normal {
   font-weight: normal;
 }
 
-#papylaqmpv .gt_font_bold {
+#vxmsrtytjs .gt_font_bold {
   font-weight: bold;
 }
 
-#papylaqmpv .gt_font_italic {
+#vxmsrtytjs .gt_font_italic {
   font-style: italic;
 }
 
-#papylaqmpv .gt_super {
+#vxmsrtytjs .gt_super {
   font-size: 65%;
 }
 
-#papylaqmpv .gt_footnote_marks {
+#vxmsrtytjs .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#papylaqmpv .gt_asterisk {
+#vxmsrtytjs .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#papylaqmpv .gt_indent_1 {
+#vxmsrtytjs .gt_indent_1 {
   text-indent: 5px;
 }
 
-#papylaqmpv .gt_indent_2 {
+#vxmsrtytjs .gt_indent_2 {
   text-indent: 10px;
 }
 
-#papylaqmpv .gt_indent_3 {
+#vxmsrtytjs .gt_indent_3 {
   text-indent: 15px;
 }
 
-#papylaqmpv .gt_indent_4 {
+#vxmsrtytjs .gt_indent_4 {
   text-indent: 20px;
 }
 
-#papylaqmpv .gt_indent_5 {
+#vxmsrtytjs .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1242,50 +2251,50 @@ GrpDtAIScrb -0.036</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>LMAllCR <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Clinical Review per Appointment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>LMCRAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllCR)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>LMCRcoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMCRAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes per Appointment"</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>LMCRAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllCR)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>LMCRcoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMCRAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Day"</span>)</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                   </span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a> LMCRcoef <span class="ot">&lt;-</span>  <span class="fu">rbind</span>(LMCRcoefd, LMCRcoefa) <span class="sc">|&gt;</span> </span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a> LMCRcoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>LMAllCR <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Clinical Review per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>LMCRAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllCR)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>LMCRcoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMCRAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes per Appointment"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>LMCRAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllCR)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>LMCRcoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMCRAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Day"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>                   </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a> LMCRcoef <span class="ot">&lt;-</span>  <span class="fu">rbind</span>(LMCRcoefd, LMCRcoefa) <span class="sc">|&gt;</span> </span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a> LMCRcoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="niopkobxyo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#niopkobxyo table {
+<div id="sjkgnsbfga" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#sjkgnsbfga table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#niopkobxyo thead, #niopkobxyo tbody, #niopkobxyo tfoot, #niopkobxyo tr, #niopkobxyo td, #niopkobxyo th {
+#sjkgnsbfga thead, #sjkgnsbfga tbody, #sjkgnsbfga tfoot, #sjkgnsbfga tr, #sjkgnsbfga td, #sjkgnsbfga th {
   border-style: none;
 }
 
-#niopkobxyo p {
+#sjkgnsbfga p {
   margin: 0;
   padding: 0;
 }
 
-#niopkobxyo .gt_table {
+#sjkgnsbfga .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1311,12 +2320,12 @@ GrpDtAIScrb -0.036</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_caption {
+#sjkgnsbfga .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#niopkobxyo .gt_title {
+#sjkgnsbfga .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1328,7 +2337,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-width: 0;
 }
 
-#niopkobxyo .gt_subtitle {
+#sjkgnsbfga .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1340,7 +2349,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-width: 0;
 }
 
-#niopkobxyo .gt_heading {
+#sjkgnsbfga .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1352,13 +2361,13 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_bottom_border {
+#sjkgnsbfga .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_col_headings {
+#sjkgnsbfga .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1373,7 +2382,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_col_heading {
+#sjkgnsbfga .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1393,7 +2402,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#niopkobxyo .gt_column_spanner_outer {
+#sjkgnsbfga .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1405,15 +2414,15 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 4px;
 }
 
-#niopkobxyo .gt_column_spanner_outer:first-child {
+#sjkgnsbfga .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#niopkobxyo .gt_column_spanner_outer:last-child {
+#sjkgnsbfga .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#niopkobxyo .gt_column_spanner {
+#sjkgnsbfga .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1425,11 +2434,11 @@ GrpDtAIScrb -0.036</code></pre>
   width: 100%;
 }
 
-#niopkobxyo .gt_spanner_row {
+#sjkgnsbfga .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#niopkobxyo .gt_group_heading {
+#sjkgnsbfga .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1455,7 +2464,7 @@ GrpDtAIScrb -0.036</code></pre>
   text-align: left;
 }
 
-#niopkobxyo .gt_empty_group_heading {
+#sjkgnsbfga .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1470,15 +2479,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: middle;
 }
 
-#niopkobxyo .gt_from_md > :first-child {
+#sjkgnsbfga .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#niopkobxyo .gt_from_md > :last-child {
+#sjkgnsbfga .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#niopkobxyo .gt_row {
+#sjkgnsbfga .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1497,7 +2506,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#niopkobxyo .gt_stub {
+#sjkgnsbfga .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1510,7 +2519,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#niopkobxyo .gt_stub_row_group {
+#sjkgnsbfga .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1524,15 +2533,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: top;
 }
 
-#niopkobxyo .gt_row_group_first td {
+#sjkgnsbfga .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#niopkobxyo .gt_row_group_first th {
+#sjkgnsbfga .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#niopkobxyo .gt_summary_row {
+#sjkgnsbfga .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1542,16 +2551,16 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#niopkobxyo .gt_first_summary_row {
+#sjkgnsbfga .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_first_summary_row.thick {
+#sjkgnsbfga .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#niopkobxyo .gt_last_summary_row {
+#sjkgnsbfga .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1561,7 +2570,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_grand_summary_row {
+#sjkgnsbfga .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1571,7 +2580,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#niopkobxyo .gt_first_grand_summary_row {
+#sjkgnsbfga .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1581,7 +2590,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_last_grand_summary_row_top {
+#sjkgnsbfga .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1591,11 +2600,11 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_striped {
+#sjkgnsbfga .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#niopkobxyo .gt_table_body {
+#sjkgnsbfga .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1604,7 +2613,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_footnotes {
+#sjkgnsbfga .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1618,7 +2627,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_footnote {
+#sjkgnsbfga .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1627,7 +2636,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#niopkobxyo .gt_sourcenotes {
+#sjkgnsbfga .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1641,7 +2650,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#niopkobxyo .gt_sourcenote {
+#sjkgnsbfga .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1649,63 +2658,63 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#niopkobxyo .gt_left {
+#sjkgnsbfga .gt_left {
   text-align: left;
 }
 
-#niopkobxyo .gt_center {
+#sjkgnsbfga .gt_center {
   text-align: center;
 }
 
-#niopkobxyo .gt_right {
+#sjkgnsbfga .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#niopkobxyo .gt_font_normal {
+#sjkgnsbfga .gt_font_normal {
   font-weight: normal;
 }
 
-#niopkobxyo .gt_font_bold {
+#sjkgnsbfga .gt_font_bold {
   font-weight: bold;
 }
 
-#niopkobxyo .gt_font_italic {
+#sjkgnsbfga .gt_font_italic {
   font-style: italic;
 }
 
-#niopkobxyo .gt_super {
+#sjkgnsbfga .gt_super {
   font-size: 65%;
 }
 
-#niopkobxyo .gt_footnote_marks {
+#sjkgnsbfga .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#niopkobxyo .gt_asterisk {
+#sjkgnsbfga .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#niopkobxyo .gt_indent_1 {
+#sjkgnsbfga .gt_indent_1 {
   text-indent: 5px;
 }
 
-#niopkobxyo .gt_indent_2 {
+#sjkgnsbfga .gt_indent_2 {
   text-indent: 10px;
 }
 
-#niopkobxyo .gt_indent_3 {
+#sjkgnsbfga .gt_indent_3 {
   text-indent: 15px;
 }
 
-#niopkobxyo .gt_indent_4 {
+#sjkgnsbfga .gt_indent_4 {
   text-indent: 20px;
 }
 
-#niopkobxyo .gt_indent_5 {
+#sjkgnsbfga .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1776,50 +2785,50 @@ GrpDtAIScrb -0.036</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>LMAllOrders <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Orders per Appointment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>LMOrdersAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllOrders)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>LMOrderscoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMOrdersAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes per Appointment"</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>LMOrdersAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllOrders)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>LMOrderscoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMOrdersAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Full Clinic Day"</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>LMOrderscoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMOrderscoefd, LMOrderscoefa) <span class="sc">|&gt;</span> </span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>LMOrderscoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>LMAllOrders <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Orders per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>LMOrdersAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllOrders)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>LMOrderscoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMOrdersAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes per Appointment"</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>LMOrdersAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllOrders)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>LMOrderscoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMOrdersAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Full Clinic Day"</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>LMOrderscoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMOrderscoefd, LMOrderscoefa) <span class="sc">|&gt;</span> </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>LMOrderscoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="oobcelzzaw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#oobcelzzaw table {
+<div id="xmrykosvmr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xmrykosvmr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#oobcelzzaw thead, #oobcelzzaw tbody, #oobcelzzaw tfoot, #oobcelzzaw tr, #oobcelzzaw td, #oobcelzzaw th {
+#xmrykosvmr thead, #xmrykosvmr tbody, #xmrykosvmr tfoot, #xmrykosvmr tr, #xmrykosvmr td, #xmrykosvmr th {
   border-style: none;
 }
 
-#oobcelzzaw p {
+#xmrykosvmr p {
   margin: 0;
   padding: 0;
 }
 
-#oobcelzzaw .gt_table {
+#xmrykosvmr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1845,12 +2854,12 @@ GrpDtAIScrb -0.036</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_caption {
+#xmrykosvmr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#oobcelzzaw .gt_title {
+#xmrykosvmr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1862,7 +2871,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-width: 0;
 }
 
-#oobcelzzaw .gt_subtitle {
+#xmrykosvmr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1874,7 +2883,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-width: 0;
 }
 
-#oobcelzzaw .gt_heading {
+#xmrykosvmr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1886,13 +2895,13 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_bottom_border {
+#xmrykosvmr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_col_headings {
+#xmrykosvmr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1907,7 +2916,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_col_heading {
+#xmrykosvmr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1927,7 +2936,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#oobcelzzaw .gt_column_spanner_outer {
+#xmrykosvmr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1939,15 +2948,15 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 4px;
 }
 
-#oobcelzzaw .gt_column_spanner_outer:first-child {
+#xmrykosvmr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#oobcelzzaw .gt_column_spanner_outer:last-child {
+#xmrykosvmr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#oobcelzzaw .gt_column_spanner {
+#xmrykosvmr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1959,11 +2968,11 @@ GrpDtAIScrb -0.036</code></pre>
   width: 100%;
 }
 
-#oobcelzzaw .gt_spanner_row {
+#xmrykosvmr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#oobcelzzaw .gt_group_heading {
+#xmrykosvmr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1989,7 +2998,7 @@ GrpDtAIScrb -0.036</code></pre>
   text-align: left;
 }
 
-#oobcelzzaw .gt_empty_group_heading {
+#xmrykosvmr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2004,15 +3013,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: middle;
 }
 
-#oobcelzzaw .gt_from_md > :first-child {
+#xmrykosvmr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#oobcelzzaw .gt_from_md > :last-child {
+#xmrykosvmr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#oobcelzzaw .gt_row {
+#xmrykosvmr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2031,7 +3040,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#oobcelzzaw .gt_stub {
+#xmrykosvmr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2044,7 +3053,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#oobcelzzaw .gt_stub_row_group {
+#xmrykosvmr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2058,15 +3067,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: top;
 }
 
-#oobcelzzaw .gt_row_group_first td {
+#xmrykosvmr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#oobcelzzaw .gt_row_group_first th {
+#xmrykosvmr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#oobcelzzaw .gt_summary_row {
+#xmrykosvmr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2076,16 +3085,16 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#oobcelzzaw .gt_first_summary_row {
+#xmrykosvmr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_first_summary_row.thick {
+#xmrykosvmr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#oobcelzzaw .gt_last_summary_row {
+#xmrykosvmr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2095,7 +3104,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_grand_summary_row {
+#xmrykosvmr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2105,7 +3114,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#oobcelzzaw .gt_first_grand_summary_row {
+#xmrykosvmr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2115,7 +3124,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_last_grand_summary_row_top {
+#xmrykosvmr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2125,11 +3134,11 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_striped {
+#xmrykosvmr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#oobcelzzaw .gt_table_body {
+#xmrykosvmr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2138,7 +3147,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_footnotes {
+#xmrykosvmr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2152,7 +3161,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_footnote {
+#xmrykosvmr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2161,7 +3170,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#oobcelzzaw .gt_sourcenotes {
+#xmrykosvmr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2175,7 +3184,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#oobcelzzaw .gt_sourcenote {
+#xmrykosvmr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2183,63 +3192,63 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#oobcelzzaw .gt_left {
+#xmrykosvmr .gt_left {
   text-align: left;
 }
 
-#oobcelzzaw .gt_center {
+#xmrykosvmr .gt_center {
   text-align: center;
 }
 
-#oobcelzzaw .gt_right {
+#xmrykosvmr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#oobcelzzaw .gt_font_normal {
+#xmrykosvmr .gt_font_normal {
   font-weight: normal;
 }
 
-#oobcelzzaw .gt_font_bold {
+#xmrykosvmr .gt_font_bold {
   font-weight: bold;
 }
 
-#oobcelzzaw .gt_font_italic {
+#xmrykosvmr .gt_font_italic {
   font-style: italic;
 }
 
-#oobcelzzaw .gt_super {
+#xmrykosvmr .gt_super {
   font-size: 65%;
 }
 
-#oobcelzzaw .gt_footnote_marks {
+#xmrykosvmr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#oobcelzzaw .gt_asterisk {
+#xmrykosvmr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#oobcelzzaw .gt_indent_1 {
+#xmrykosvmr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#oobcelzzaw .gt_indent_2 {
+#xmrykosvmr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#oobcelzzaw .gt_indent_3 {
+#xmrykosvmr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#oobcelzzaw .gt_indent_4 {
+#xmrykosvmr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#oobcelzzaw .gt_indent_5 {
+#xmrykosvmr .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2310,51 +3319,51 @@ GrpDtAIScrb -0.036</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>LMAllIB <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in In Basket per Appointment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span>   </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>LMIBAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllIB)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>LMIBcoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMIBAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes Per Appointment"</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>LMIBAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllIB)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>LMIBcoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMIBAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Full Clinic Day"</span>)</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a> LMIBcoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMIBcoefd, LMIBcoefa)<span class="sc">|&gt;</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a> LMIBcoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>LMAllIB <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in In Basket per Appointment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, Value, GroupData, Denominator) <span class="sc">|&gt;</span>   </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ValueD =</span> Value <span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">60</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#a models will be for time per appointment (mins)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#d models will be for time per typical full clinic day (hours)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>LMIBAppa <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Value <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllIB)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>LMIBcoefa <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMIBAppa, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Minutes Per Appointment"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>LMIBAppd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> ValueD <span class="sc">~</span> (GroupData) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>LMAllIB)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>LMIBcoefd <span class="ot">&lt;-</span> <span class="fu">tidy</span>(LMIBAppd, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Units =</span> <span class="st">"Hours per Typical Full Clinic Day"</span>)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a> LMIBcoef <span class="ot">&lt;-</span> <span class="fu">rbind</span>(LMIBcoefd, LMIBcoefa)<span class="sc">|&gt;</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data_color</span>(<span class="at">columns =</span> p.value,</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"bin"</span>,</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>               <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"green"</span>,<span class="st">"yellow"</span>,<span class="st">"red"</span>),</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">bins=</span> <span class="fu">c</span>(<span class="fl">1.0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span>,<span class="dv">0</span>))</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a> LMIBcoef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="ghznqhqsgc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ghznqhqsgc table {
+<div id="rdkcqhasfo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rdkcqhasfo table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ghznqhqsgc thead, #ghznqhqsgc tbody, #ghznqhqsgc tfoot, #ghznqhqsgc tr, #ghznqhqsgc td, #ghznqhqsgc th {
+#rdkcqhasfo thead, #rdkcqhasfo tbody, #rdkcqhasfo tfoot, #rdkcqhasfo tr, #rdkcqhasfo td, #rdkcqhasfo th {
   border-style: none;
 }
 
-#ghznqhqsgc p {
+#rdkcqhasfo p {
   margin: 0;
   padding: 0;
 }
 
-#ghznqhqsgc .gt_table {
+#rdkcqhasfo .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2380,12 +3389,12 @@ GrpDtAIScrb -0.036</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_caption {
+#rdkcqhasfo .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ghznqhqsgc .gt_title {
+#rdkcqhasfo .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2397,7 +3406,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-width: 0;
 }
 
-#ghznqhqsgc .gt_subtitle {
+#rdkcqhasfo .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2409,7 +3418,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-width: 0;
 }
 
-#ghznqhqsgc .gt_heading {
+#rdkcqhasfo .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2421,13 +3430,13 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_bottom_border {
+#rdkcqhasfo .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_col_headings {
+#rdkcqhasfo .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2442,7 +3451,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_col_heading {
+#rdkcqhasfo .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2462,7 +3471,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#ghznqhqsgc .gt_column_spanner_outer {
+#rdkcqhasfo .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2474,15 +3483,15 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 4px;
 }
 
-#ghznqhqsgc .gt_column_spanner_outer:first-child {
+#rdkcqhasfo .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ghznqhqsgc .gt_column_spanner_outer:last-child {
+#rdkcqhasfo .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ghznqhqsgc .gt_column_spanner {
+#rdkcqhasfo .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2494,11 +3503,11 @@ GrpDtAIScrb -0.036</code></pre>
   width: 100%;
 }
 
-#ghznqhqsgc .gt_spanner_row {
+#rdkcqhasfo .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ghznqhqsgc .gt_group_heading {
+#rdkcqhasfo .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2524,7 +3533,7 @@ GrpDtAIScrb -0.036</code></pre>
   text-align: left;
 }
 
-#ghznqhqsgc .gt_empty_group_heading {
+#rdkcqhasfo .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2539,15 +3548,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: middle;
 }
 
-#ghznqhqsgc .gt_from_md > :first-child {
+#rdkcqhasfo .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ghznqhqsgc .gt_from_md > :last-child {
+#rdkcqhasfo .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ghznqhqsgc .gt_row {
+#rdkcqhasfo .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2566,7 +3575,7 @@ GrpDtAIScrb -0.036</code></pre>
   overflow-x: hidden;
 }
 
-#ghznqhqsgc .gt_stub {
+#rdkcqhasfo .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2579,7 +3588,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#ghznqhqsgc .gt_stub_row_group {
+#rdkcqhasfo .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2593,15 +3602,15 @@ GrpDtAIScrb -0.036</code></pre>
   vertical-align: top;
 }
 
-#ghznqhqsgc .gt_row_group_first td {
+#rdkcqhasfo .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ghznqhqsgc .gt_row_group_first th {
+#rdkcqhasfo .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ghznqhqsgc .gt_summary_row {
+#rdkcqhasfo .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2611,16 +3620,16 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#ghznqhqsgc .gt_first_summary_row {
+#rdkcqhasfo .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_first_summary_row.thick {
+#rdkcqhasfo .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ghznqhqsgc .gt_last_summary_row {
+#rdkcqhasfo .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2630,7 +3639,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_grand_summary_row {
+#rdkcqhasfo .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2640,7 +3649,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#ghznqhqsgc .gt_first_grand_summary_row {
+#rdkcqhasfo .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2650,7 +3659,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_last_grand_summary_row_top {
+#rdkcqhasfo .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2660,11 +3669,11 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_striped {
+#rdkcqhasfo .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ghznqhqsgc .gt_table_body {
+#rdkcqhasfo .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2673,7 +3682,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_footnotes {
+#rdkcqhasfo .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2687,7 +3696,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_footnote {
+#rdkcqhasfo .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2696,7 +3705,7 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#ghznqhqsgc .gt_sourcenotes {
+#rdkcqhasfo .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2710,7 +3719,7 @@ GrpDtAIScrb -0.036</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ghznqhqsgc .gt_sourcenote {
+#rdkcqhasfo .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2718,63 +3727,63 @@ GrpDtAIScrb -0.036</code></pre>
   padding-right: 5px;
 }
 
-#ghznqhqsgc .gt_left {
+#rdkcqhasfo .gt_left {
   text-align: left;
 }
 
-#ghznqhqsgc .gt_center {
+#rdkcqhasfo .gt_center {
   text-align: center;
 }
 
-#ghznqhqsgc .gt_right {
+#rdkcqhasfo .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ghznqhqsgc .gt_font_normal {
+#rdkcqhasfo .gt_font_normal {
   font-weight: normal;
 }
 
-#ghznqhqsgc .gt_font_bold {
+#rdkcqhasfo .gt_font_bold {
   font-weight: bold;
 }
 
-#ghznqhqsgc .gt_font_italic {
+#rdkcqhasfo .gt_font_italic {
   font-style: italic;
 }
 
-#ghznqhqsgc .gt_super {
+#rdkcqhasfo .gt_super {
   font-size: 65%;
 }
 
-#ghznqhqsgc .gt_footnote_marks {
+#rdkcqhasfo .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ghznqhqsgc .gt_asterisk {
+#rdkcqhasfo .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ghznqhqsgc .gt_indent_1 {
+#rdkcqhasfo .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ghznqhqsgc .gt_indent_2 {
+#rdkcqhasfo .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ghznqhqsgc .gt_indent_3 {
+#rdkcqhasfo .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ghznqhqsgc .gt_indent_4 {
+#rdkcqhasfo .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ghznqhqsgc .gt_indent_5 {
+#rdkcqhasfo .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2848,81 +3857,81 @@ GrpDtAIScrb -0.036</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>TimeInNotesAll <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Notes per Appointment"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Metric)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>VisitsPerMo1 <span class="ot">&lt;-</span> VisitsRaw <span class="sc">|&gt;</span> </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">StartDate =</span> <span class="fu">case_when</span>( Date <span class="sc">&lt;=</span> <span class="st">"2022-12-31"</span><span class="sc">~</span><span class="st">"2022-11-27"</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-01-28"</span><span class="sc">~</span><span class="st">"2023-01-01"</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-02-25"</span><span class="sc">~</span><span class="st">"2023-01-29"</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-03-25"</span><span class="sc">~</span><span class="st">"2023-02-26"</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-04-29"</span><span class="sc">~</span><span class="st">"2023-03-26"</span>,</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-05-27"</span><span class="sc">~</span><span class="st">"2023-04-30"</span>,</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-06-24"</span><span class="sc">~</span><span class="st">"2023-05-28"</span>,</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-07-29"</span><span class="sc">~</span><span class="st">"2023-06-25"</span>,</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-08-26"</span><span class="sc">~</span><span class="st">"2023-07-30"</span>,</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-09-30"</span><span class="sc">~</span><span class="st">"2023-08-27"</span>,</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-10-28"</span><span class="sc">~</span><span class="st">"2023-10-01"</span>,</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-11-25"</span><span class="sc">~</span><span class="st">"2023-10-29"</span>,</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-12-30"</span><span class="sc">~</span><span class="st">"2023-11-26"</span>,</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-01-27"</span><span class="sc">~</span><span class="st">"2023-12-31"</span>,</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-02-24"</span><span class="sc">~</span><span class="st">"2024-01-28"</span>,</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-03-30"</span><span class="sc">~</span><span class="st">"2024-02-25"</span>,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-04-27"</span><span class="sc">~</span><span class="st">"2024-03-31"</span>,</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-05-25"</span><span class="sc">~</span><span class="st">"2024-04-28"</span>,</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-06-29"</span><span class="sc">~</span><span class="st">"2024-05-26"</span>,</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-07-27"</span><span class="sc">~</span><span class="st">"2024-06-30"</span>,</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-08-31"</span><span class="sc">~</span><span class="st">"2024-07-28"</span>,</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-09-28"</span><span class="sc">~</span><span class="st">"2024-09-01"</span>,</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-10-26"</span><span class="sc">~</span><span class="st">"2024-09-29"</span>,</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-11-30"</span><span class="sc">~</span><span class="st">"2024-10-27"</span>,</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-12-28"</span><span class="sc">~</span><span class="st">"2024-12-01"</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-01-25"</span><span class="sc">~</span><span class="st">"2024-12-29"</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-02-22"</span><span class="sc">~</span><span class="st">"2025-01-26"</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-03-29"</span><span class="sc">~</span><span class="st">"2025-02-23"</span>,</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-04-26"</span><span class="sc">~</span><span class="st">"2025-03-30"</span>,</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-05-31"</span><span class="sc">~</span><span class="st">"2025-04-27"</span>,</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-06-28"</span><span class="sc">~</span><span class="st">"2025-06-01"</span>,</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-07-26"</span><span class="sc">~</span><span class="st">"2025-06-29"</span>,</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-08-30"</span><span class="sc">~</span><span class="st">"2025-07-27"</span>,</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-09-27"</span><span class="sc">~</span><span class="st">"2025-08-31"</span>,</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-10-25"</span><span class="sc">~</span><span class="st">"2025-09-28"</span>,</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-11-29"</span><span class="sc">~</span><span class="st">"2025-10-26"</span>,</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-12-27"</span><span class="sc">~</span><span class="st">"2025-11-30"</span>,</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2026-01-31"</span><span class="sc">~</span><span class="st">"2025-12-28"</span>, </span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>                                T<span class="sc">~</span><span class="cn">NA</span>))</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>VisitsPerMo <span class="ot">&lt;-</span>  VisitsPerMo1 <span class="sc">|&gt;</span> </span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate) <span class="sc">|&gt;</span> </span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">New =</span> <span class="fu">sum</span>(NEW, <span class="at">na.rm =</span>T),</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Return did not differ from telemed so we combine them</span></span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>            <span class="at">Return =</span> <span class="fu">sum</span>(RETURN,TELEMED, <span class="at">na.rm =</span>T),</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>            <span class="at">Other =</span> <span class="fu">sum</span>(OTHER, <span class="at">na.rm =</span> T),</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>            <span class="at">Total =</span> <span class="fu">sum</span>(NEW, RETURN, OTHER, TELEMED, <span class="at">na.rm =</span> T)) <span class="sc">|&gt;</span> </span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Total<span class="sc">&gt;</span><span class="dv">19</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(StartDate))</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>VisitsPerMo<span class="sc">$</span>StartDate <span class="ot">&lt;-</span> <span class="fu">ymd</span>(VisitsPerMo<span class="sc">$</span>StartDate, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>TimeInNotesLM <span class="ot">&lt;-</span> TimeInNotesAll <span class="sc">|&gt;</span> </span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(VisitsPerMo,<span class="fu">join_by</span>(StudyID, StartDate)) <span class="sc">|&gt;</span> </span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyUserHigh)</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>NotesData4LMEM <span class="ot">=</span> TimeInNotesLM <span class="sc">|&gt;</span> </span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span> <span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HighUser)</span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>NotesData4LMEM<span class="sc">$</span>StudyID <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(NotesData4LMEM<span class="sc">$</span>StudyID)</span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>NotesControlLMEM <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Numerator <span class="sc">~</span> (New)<span class="sc">*</span>(GroupData) <span class="sc">+</span> (Return)<span class="sc">*</span>GroupData <span class="sc">+</span> (Other)<span class="sc">*</span>GroupData <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>NotesData4LMEM)</span>
-<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(NotesControlLMEM)               </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>TimeInNotesAll <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Time in Notes per Appointment"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Metric)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>VisitsPerMo1 <span class="ot">&lt;-</span> VisitsRaw <span class="sc">|&gt;</span> </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">StartDate =</span> <span class="fu">case_when</span>( Date <span class="sc">&lt;=</span> <span class="st">"2022-12-31"</span><span class="sc">~</span><span class="st">"2022-11-27"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-01-28"</span><span class="sc">~</span><span class="st">"2023-01-01"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-02-25"</span><span class="sc">~</span><span class="st">"2023-01-29"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-03-25"</span><span class="sc">~</span><span class="st">"2023-02-26"</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-04-29"</span><span class="sc">~</span><span class="st">"2023-03-26"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-05-27"</span><span class="sc">~</span><span class="st">"2023-04-30"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-06-24"</span><span class="sc">~</span><span class="st">"2023-05-28"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-07-29"</span><span class="sc">~</span><span class="st">"2023-06-25"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-08-26"</span><span class="sc">~</span><span class="st">"2023-07-30"</span>,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-09-30"</span><span class="sc">~</span><span class="st">"2023-08-27"</span>,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-10-28"</span><span class="sc">~</span><span class="st">"2023-10-01"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-11-25"</span><span class="sc">~</span><span class="st">"2023-10-29"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2023-12-30"</span><span class="sc">~</span><span class="st">"2023-11-26"</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-01-27"</span><span class="sc">~</span><span class="st">"2023-12-31"</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-02-24"</span><span class="sc">~</span><span class="st">"2024-01-28"</span>,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-03-30"</span><span class="sc">~</span><span class="st">"2024-02-25"</span>,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-04-27"</span><span class="sc">~</span><span class="st">"2024-03-31"</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-05-25"</span><span class="sc">~</span><span class="st">"2024-04-28"</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-06-29"</span><span class="sc">~</span><span class="st">"2024-05-26"</span>,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-07-27"</span><span class="sc">~</span><span class="st">"2024-06-30"</span>,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-08-31"</span><span class="sc">~</span><span class="st">"2024-07-28"</span>,</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-09-28"</span><span class="sc">~</span><span class="st">"2024-09-01"</span>,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-10-26"</span><span class="sc">~</span><span class="st">"2024-09-29"</span>,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-11-30"</span><span class="sc">~</span><span class="st">"2024-10-27"</span>,</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2024-12-28"</span><span class="sc">~</span><span class="st">"2024-12-01"</span>,</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-01-25"</span><span class="sc">~</span><span class="st">"2024-12-29"</span>,</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-02-22"</span><span class="sc">~</span><span class="st">"2025-01-26"</span>,</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-03-29"</span><span class="sc">~</span><span class="st">"2025-02-23"</span>,</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-04-26"</span><span class="sc">~</span><span class="st">"2025-03-30"</span>,</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-05-31"</span><span class="sc">~</span><span class="st">"2025-04-27"</span>,</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-06-28"</span><span class="sc">~</span><span class="st">"2025-06-01"</span>,</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-07-26"</span><span class="sc">~</span><span class="st">"2025-06-29"</span>,</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-08-30"</span><span class="sc">~</span><span class="st">"2025-07-27"</span>,</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-09-27"</span><span class="sc">~</span><span class="st">"2025-08-31"</span>,</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-10-25"</span><span class="sc">~</span><span class="st">"2025-09-28"</span>,</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-11-29"</span><span class="sc">~</span><span class="st">"2025-10-26"</span>,</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2025-12-27"</span><span class="sc">~</span><span class="st">"2025-11-30"</span>,</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>                                Date <span class="sc">&lt;=</span> <span class="st">"2026-01-31"</span><span class="sc">~</span><span class="st">"2025-12-28"</span>, </span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>                                T<span class="sc">~</span><span class="cn">NA</span>))</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>VisitsPerMo <span class="ot">&lt;-</span>  VisitsPerMo1 <span class="sc">|&gt;</span> </span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate) <span class="sc">|&gt;</span> </span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">New =</span> <span class="fu">sum</span>(NEW, <span class="at">na.rm =</span>T),</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Return did not differ from telemed so we combine them</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>            <span class="at">Return =</span> <span class="fu">sum</span>(RETURN,TELEMED, <span class="at">na.rm =</span>T),</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>            <span class="at">Other =</span> <span class="fu">sum</span>(OTHER, <span class="at">na.rm =</span> T),</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>            <span class="at">Total =</span> <span class="fu">sum</span>(NEW, RETURN, OTHER, TELEMED, <span class="at">na.rm =</span> T)) <span class="sc">|&gt;</span> </span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Total<span class="sc">&gt;</span><span class="dv">19</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(StartDate))</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>VisitsPerMo<span class="sc">$</span>StartDate <span class="ot">&lt;-</span> <span class="fu">ymd</span>(VisitsPerMo<span class="sc">$</span>StartDate, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>TimeInNotesLM <span class="ot">&lt;-</span> TimeInNotesAll <span class="sc">|&gt;</span> </span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(VisitsPerMo,<span class="fu">join_by</span>(StudyID, StartDate)) <span class="sc">|&gt;</span> </span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyUserHigh)</span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>NotesData4LMEM <span class="ot">=</span> TimeInNotesLM <span class="sc">|&gt;</span> </span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span> <span class="st">"Transition"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HighUser)</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>NotesData4LMEM<span class="sc">$</span>StudyID <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(NotesData4LMEM<span class="sc">$</span>StudyID)</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>NotesControlLMEM <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="at">formula =</span> Numerator <span class="sc">~</span> (New)<span class="sc">*</span>(GroupData) <span class="sc">+</span> (Return)<span class="sc">*</span>GroupData <span class="sc">+</span> (Other)<span class="sc">*</span>GroupData <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>StudyID), <span class="at">data=</span>NotesData4LMEM)</span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(NotesControlLMEM)               </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -2969,8 +3978,105 @@ GrpDtAISc:O  0.022  0.089 -0.500 -0.057 -0.175 -0.756  0.373 </code></pre>
 </div>
 </section>
 </section>
-<section id="likelihood-closure-same-day" class="level2">
-<h2 class="anchored" data-anchor-id="likelihood-closure-same-day">Likelihood closure same day</h2>
+<section id="high-likelihood-of-90-same-day-closure-in-high-users" class="level2">
+<h2 class="anchored" data-anchor-id="high-likelihood-of-90-same-day-closure-in-high-users">High Likelihood of 90% same day closure in High users<br>
+</h2>
+</section>
+<section id="figures" class="level2">
+<h2 class="anchored" data-anchor-id="figures">Figures</h2>
+<section id="pj-time" class="level3">
+<h3 class="anchored" data-anchor-id="pj-time">PJ Time</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#need to run PJ wowh</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>GraphPJData <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Pajama Time"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID,StartDate,GroupData) <span class="sc">|&gt;</span> </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">PJmontly =</span> <span class="fu">sum</span>(Numerator,<span class="at">na.rm =</span>T)) <span class="sc">|&gt;</span> </span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyDenominator, <span class="fu">join_by</span>(StudyID,StartDate)) <span class="sc">|&gt;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HrsPerDay =</span> PJmontly<span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="st">`</span><span class="at">per Appointment</span><span class="st">`</span><span class="sc">/</span><span class="dv">60</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID, PJmontly, GroupData, HrsPerDay)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'StudyID', 'StartDate'. You can override
+using the `.groups` argument.
+Adding missing grouping variables: `StartDate`</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>BaselinePJDay <span class="ot">&lt;-</span> GraphPJData <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">==</span> <span class="st">"Control"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(StudyID) <span class="sc">|&gt;</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">BasePJ =</span> <span class="fu">mean</span>(HrsPerDay,<span class="at">na.rm =</span>T))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>TransitionDates <span class="ot">&lt;-</span> SignalRaw <span class="sc">|&gt;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Metric <span class="sc">==</span> <span class="st">"Pajama Time"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">==</span><span class="st">"Transition"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(StudyID,<span class="at">TransDate =</span>StartDate)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>NormalizedData <span class="ot">&lt;-</span> GraphPJData <span class="sc">|&gt;</span> </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(TransitionDates) <span class="sc">|&gt;</span> </span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(BaselinePJDay) <span class="sc">|&gt;</span> </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(KeyUserHigh) <span class="sc">|&gt;</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NormPjHrsDay =</span> HrsPerDay<span class="sc">/</span>BasePJ,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">DaysSinceTrans =</span> <span class="fu">as.double</span>(StartDate<span class="sc">-</span>TransDate)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HighUser,GroupData, DaysSinceTrans) <span class="sc">|&gt;</span> </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">MeanNormPjHrsDay =</span> <span class="fu">mean</span>(NormPjHrsDay)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(GroupData <span class="sc">!=</span>   <span class="st">"Transition"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(StudyID)`
+Joining with `by = join_by(StudyID)`
+Joining with `by = join_by(StudyID)`
+`summarise()` has grouped output by 'HighUser', 'GroupData'. You can override
+using the `.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(NormalizedData, <span class="fu">aes</span>(DaysSinceTrans, MeanNormPjHrsDay, <span class="at">group =</span> HighUser, <span class="at">color =</span> HighUser))<span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">se =</span> F)<span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="at">rows =</span> <span class="fu">vars</span>(HighUser), <span class="at">cols =</span> <span class="fu">vars</span>(GroupData),   <span class="at">scales =</span> <span class="st">"free_x"</span>)<span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">1.0</span>,<span class="at">linetype =</span><span class="dv">2</span>)<span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">percent_format</span>()</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">scale_color_manual</span>(</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>( <span class="st">"wheat3"</span>, <span class="st">"purple3"</span>))<span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in simpleLoess(y, x, w, span, degree = degree, parametric =
+parametric, : span too small. fewer data values than degrees of freedom.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in simpleLoess(y, x, w, span, degree = degree, parametric =
+parametric, : pseudoinverse used at 27.545</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in simpleLoess(y, x, w, span, degree = degree, parametric =
+parametric, : neighborhood radius 63.455</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in simpleLoess(y, x, w, span, degree = degree, parametric =
+parametric, : reciprocal condition number 0</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in simpleLoess(y, x, w, span, degree = degree, parametric =
+parametric, : There are other near singularities as well. 4026.5</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sqrt(sum.squares/one.delta): NaNs produced</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Abridge_Impact_in_OTO_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 
 </main>

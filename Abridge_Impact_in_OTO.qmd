@@ -536,6 +536,11 @@ resultsClosure |>
 ### PJ Time
 
 ```{r}
+
+#| echo: false
+#| message: false
+#| warning: false
+#| code-fold: true
 #need to run PJ wowh
 
 GraphPJData <- SignalRaw |>
