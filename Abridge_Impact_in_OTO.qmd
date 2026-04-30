@@ -300,7 +300,8 @@ summary(LMNotesAppd)
 LMNotescoefd <- tidy(LMNotesAppd, effects = "fixed") |>
   mutate(Units = "hrs per typical day")
  
- LMNotescoef <- rbind(LMNotescoefd,LMNotescoefa)
+ LMNotescoef <- rbind(LMNotescoefd,LMNotescoefa) |> 
+   mutate(EHRActivity = "Notes")
  
  LMNotescoef |> 
    gt() |> 
@@ -332,14 +333,17 @@ LMCRAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllCR)
 LMCRcoefd <- tidy(LMCRAppd, effects = "fixed") |> 
   mutate(Units = "Hours per Typical Day")
                    
- LMCRcoef <-  rbind(LMCRcoefd, LMCRcoefa) |> 
+ LMCRcoef <-  rbind(LMCRcoefd, LMCRcoefa) |>
+   mutate(EHRActivity = "Chart Review")
+
+  LMCRcoef |>  
    gt() |> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
                bins= c(1.0,0.15,0.05,0))
  
- LMCRcoef
+
 
 ```
 ### Time in Orders
@@ -365,14 +369,17 @@ LMOrdersAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllOrd
 LMOrderscoefd <- tidy(LMOrdersAppd, effects = "fixed") |>
   mutate(Units = "Hours per Typical Full Clinic Day")
 
-LMOrderscoef <- rbind(LMOrderscoefd, LMOrderscoefa) |> 
+LMOrderscoef <- rbind(LMOrderscoefd, LMOrderscoefa) |>
+   mutate(EHRActivity = "Orders")
+
+LMOrderscoef|> 
   gt() |> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
                bins= c(1.0,0.15,0.05,0))
 
-LMOrderscoef
+
 ```
 
 
@@ -401,7 +408,11 @@ LMIBAppd <- lmer(formula = ValueD ~ (GroupData) + (1|StudyID), data=LMAllIB)
 LMIBcoefd <- tidy(LMIBAppd, effects = "fixed") |>
   mutate(Units = "Hours per Typical Full Clinic Day")
 
+
  LMIBcoef <- rbind(LMIBcoefd, LMIBcoefa)|>
+   mutate(EHRActivity = "In Basket")
+
+ LMIBcoef |>
    gt() |> 
           data_color(columns = p.value,
               method = "bin",
@@ -409,6 +420,38 @@ LMIBcoefd <- tidy(LMIBAppd, effects = "fixed") |>
                bins= c(1.0,0.15,0.05,0))
  LMIBcoef
 ```
+
+##Publication Table - Changes in Time Acivity Table both Appt and typical full day
+
+```{r}
+#Need to run all of the Time in Activity code chunnks
+
+ DataActAll<- rbind(LMCRcoef, LMNotescoef, LMIBcoef, LMOrderscoef) |> 
+  mutate(Group = if_else(str_detect(term, "ribe"),"With AI Scribe", "Baseline"),
+         Value = round(estimate,2),
+         UCL = round((estimate+2*std.error), 2),
+         LCL = round((estimate-2*std.error), 2),
+         pValue = round (p.value, 4) 
+         ) |> 
+  select(Units:pValue) 
+
+
+Results_SignalChanges <- DataActAll|> 
+  mutate(AIScribeDelta = str_c(
+    as.character(Value),
+    " (",
+    as.character(LCL),
+    ", ",
+    as.character(UCL),
+    ") p value = ",
+    as.character(pValue))) |>
+  select(EHRActivity,Group,AIScribeDelta,Units) |> 
+  pivot_wider(names_from = Group,values_from = AIScribeDelta) |> 
+  mutate(Baseline = str_sub(Baseline,start = 1L,end = 4L))
+
+
+```
+
 
 ## Time in Notes by TYPE of Visit
 ### Model - Just not enough data points in AI Scribe
@@ -531,7 +574,7 @@ resultsClosure |>
                bins= c(1.0,0.15,0.05,0))
 ```
 
-## Figures
+## Figures Normalized
 
 ### PJ Time
 
@@ -575,7 +618,7 @@ NormalizedData <- GraphPJData |>
   
 ggplot(NormalizedData, aes(DaysSinceTrans, MeanNormPjHrsDay, group = HighUser, color = HighUser))+
   geom_smooth(se = F)+
-  facet_grid(rows = vars(HighUser), cols = vars(GroupData),   scales = "free_x")+
+  facet_wrap(vars(GroupData),   scales = "free_x")+
   geom_hline(yintercept = 1.0,linetype =2)+
     scale_y_continuous(
     labels = percent_format()
@@ -586,5 +629,57 @@ ggplot(NormalizedData, aes(DaysSinceTrans, MeanNormPjHrsDay, group = HighUser, c
 
 ```
 
+### Notes
+
+```{r}
+
+#| echo: false
+#| message: false
+#| warning: false
+#| code-fold: true
+#need to run PJ Wowh
+
+GraphNotesData <- SignalRaw |>
+  filter(Metric == "Time in Notes per Day")|>
+  filter(GroupData !="Transition") |>
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(Notesmontly = sum(Numerator,na.rm =T)) |> 
+  left_join(KeyDenominator, join_by(StudyID,StartDate)) |>
+  mutate(HrsPerDay = Notesmontly*20/`per Appointment`/60) |> 
+  select(StudyID, Notesmontly, GroupData, HrsPerDay)
+
+BaselineNotesDay <- GraphNotesData |>
+  filter(GroupData == "Control") |> 
+  group_by(StudyID) |> 
+  summarise(BaseNotes = mean(HrsPerDay,na.rm =T))
+
+TransitionDates <- SignalRaw |>
+  filter(Metric == "Pajama Time")|>
+  filter(GroupData =="Transition") |>
+  select(StudyID,TransDate =StartDate)
+
+NormalizedDataN <- GraphNotesData |> 
+  left_join(TransitionDates) |> 
+  left_join(BaselineNotesDay) |> 
+  left_join(KeyUserHigh) |>
+  mutate(NormNotesHrsDay = HrsPerDay/BaseNotes,
+         DaysSinceTrans = as.double(StartDate-TransDate)) |> 
+  group_by(HighUser,GroupData, DaysSinceTrans) |> 
+  summarise(MeanNormNotesHrsDay = mean(NormNotesHrsDay)) |> 
+  filter(GroupData !=   "Transition" )
+         
+  
+ggplot(NormalizedDataN, aes(DaysSinceTrans, MeanNormNotesHrsDay, group = HighUser, color = HighUser))+
+  geom_smooth(se = F)+
+  facet_wrap(vars(GroupData),   scales = "free_x")+
+  geom_hline(yintercept = 1.0,linetype =2)+
+    scale_y_continuous(
+    labels = percent_format()
+  ) +
+   scale_color_manual(
+    values = c( "wheat3", "purple3"))+
+  theme_bw()
+
+```
 
 
