@@ -844,11 +844,15 @@ NormalizedData <- GraphPJData |>
   group_by(HighUser,GroupData, MoSinceTrans, StudyID) |> 
   summarise(MeanNormPjHrsDay = mean(NormPjHrsDay, na.rm = T)) |> 
   filter(GroupData !=   "Transition" ) |> 
-  mutate(HighUserG = if_else(HighUser,"High AI Sribe Users", "Low AI Scribe Users"))
+  mutate(HighUserG = if_else(HighUser,"High AI Sribe Users", "Low AI Scribe Users"),
+         GroupDataLab = if_else(GroupData=="Control","Baseline",GroupData))
+
+GroupDataLablv <- c("Baseline", "AIScribe")
+NormalizedData$GroupDataLab <- factor(NormalizedData$GroupDataLab,levels = GroupDataLablv)
          
 ```
 
-### Line Graph
+#### Line Graph
 
 ```{r}  
 ggplot(NormalizedData, aes(MoSinceTrans, MeanNormPjHrsDay, group = HighUserG, color = HighUserG))+
@@ -867,16 +871,15 @@ ggplot(NormalizedData, aes(MoSinceTrans, MeanNormPjHrsDay, group = HighUserG, co
 
 ```
 
-#### Ridge Plot
+#### Publication:  Ridge Plot
 
 ```{r}
 
-
 ggplot(data = NormalizedData, aes(x = MeanNormPjHrsDay,
-             y = reorder(GroupData,desc(GroupData)), fill = GroupData  )) +
+             y = reorder(GroupDataLab,desc(GroupDataLab)), fill = GroupDataLab  )) +
   stat_density_ridges(bandwidth = 0.08, scale = 1.25, size = 1.25, color = "white",quantile_lines = T,quantiles = 2, show.legend = F )+
   scale_fill_manual(values = c("grey75", "black"))+
-  labs(x = "% Difference In Difference", y  =" ") +
+  labs(x = "% of Baseline Mean", y  =" ") +
   scale_x_continuous(
     labels = percent_format()
   ) +
@@ -890,7 +893,7 @@ ggplot(data = NormalizedData, aes(x = MeanNormPjHrsDay,
 ```
 
 
-### violin plot
+#### violin plot
 
 ```{r}
 
@@ -959,7 +962,11 @@ NormalizedDataN <- GraphNotesData |>
   group_by(HighUser,GroupData, DaysSinceTrans, StudyID) |> 
   summarise(MeanNormNotesHrsDay = mean(NormNotesHrsDay)) |> 
   filter(GroupData !=   "Transition" ) |> 
-  mutate(HighUserG = if_else(HighUser,"High AI Sribe Users", "Low AI Scribe Users"))
+  mutate(HighUserG = if_else(HighUser,"High AI Sribe Users", "Low AI Scribe Users"),            
+         GroupDataLab = if_else(GroupData=="Control","Baseline",GroupData))
+
+GroupDataLablv <- c("Baseline", "AIScribe")
+NormalizedDataN$GroupDataLab <- factor(NormalizedDataN$GroupDataLab,levels = GroupDataLablv)
          
 
 ```
@@ -984,14 +991,15 @@ ggplot(NormalizedDataN, aes(DaysSinceTrans, MeanNormNotesHrsDay, group = HighUse
 
 
 ggplot(data = NormalizedDataN, aes(x = MeanNormNotesHrsDay,
-             y = reorder(GroupData,desc(GroupData)), fill = GroupData  )) +
+             y = reorder(GroupDataLab,desc(GroupDataLab)), fill = GroupDataLab  )) +
   stat_density_ridges(bandwidth = 0.05, scale = 1.25, size = 1.25, color = "white",quantile_lines = T,quantiles = 2, show.legend = F )+
   scale_fill_manual(values = c("grey75", "black"))+
-  labs(x = "% Difference In Difference", y  =" ") +
+  labs(x = "% of Baseline Mean", y  =" ") +
   scale_x_continuous(
-    labels = percent_format()
+    labels = percent_format(),
+    n.breaks = 7
   ) +
-  coord_cartesian(xlim =c (0.4,1.8))+
+  coord_cartesian(xlim =c (0.4,1.75))+
   facet_wrap(vars(HighUserG),nrow = 1)+
   labs(
     title = "Change in Time in Notes with AI Scribes" ) +
