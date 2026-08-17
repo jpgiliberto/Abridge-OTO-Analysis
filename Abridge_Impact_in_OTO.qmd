@@ -168,6 +168,17 @@ BaselineMeans <- SignalRaw |>
 
 BaselineNotesPerAppt <- BaselineMeans |> 
   filter(Metric =="Time in Notes per Appointment")
+
+BaslineTotalMonthlyNotesMean <-  SignalRaw |> 
+  filter(GroupData=="Control") |> 
+  filter(Metric =="Time in Notes per Appointment") |> 
+  group_by(Metric, StudyID) |> 
+  summarize(Count = n(),
+            BaselineMean = mean(Numerator, na.rm = T)) |> 
+  select(-Metric) |> 
+  mutate(MetricNew = "Mean Total Monthly Note Burden",
+         HighNoteBurden = BaselineMean >636.7681)
+  
  
 ```
 
@@ -456,7 +467,217 @@ Results_SignalChanges <- DataActAll|>
   mutate(Baseline = str_sub(Baseline,start = 1L,end = 4L))
 
 
+
 ```
+
+
+### Publuciation Plot - Color
+
+
+
+```{r}
+
+DataPlotBaseline <- DataActAll |> 
+  filter(str_detect(Units, "ay") & Group =="Baseline") |> 
+  select(EHRActivity,Baseline = Value)
+
+DataPlotScribe <- DataActAll |> 
+  filter(str_detect(Units, "ay") & Group !="Baseline") |> 
+  left_join(DataPlotBaseline) |> 
+  mutate(Value = Value + Baseline,
+         LCL = LCL + Baseline,
+         UCL = UCL + Baseline)
+
+colorselect <-  "#5d348b"
+
+ggplot(DataPlotScribe, aes(x = EHRActivity, y = Value)) +
+  # AI Scribe as point + CI whiskers
+geom_pointrange(
+  data = DataPlotScribe |> filter(Group == "With AI Scribe"),
+  aes(
+    ymin = LCL,
+    ymax = UCL,
+    shape = "With AI Scribe (95% CI)"
+  ),
+  size = 0.9,
+  color = colorselect
+) +
+      geom_point( aes(x = EHRActivity, y = LCL),
+    shape = 95,
+    size = 3,
+    color = colorselect
+  ) +
+        geom_point( aes(x = EHRActivity, y = UCL),
+    shape = 95,
+    size = 3,
+    color = colorselect
+  ) +
+  
+geom_point(
+  aes(
+    x = EHRActivity,
+    y = Baseline,
+    shape = "Baseline"
+  ),
+  size = 3.5,
+  color = "#FFC700"
+) +
+  
+  geom_text(
+  data = DataPlotScribe,
+  aes(label = round(Value, 2 )),
+  hjust = -.75,   # move text above the right  point
+  size = 3.5,
+  color = colorselect
+)+
+  
+   geom_text(
+  data = DataPlotScribe,
+  aes(x = EHRActivity, y = Baseline, label = round(Baseline, 1)),
+  hjust = 1.75,   # move text above the right  point
+  size = 3.5,
+  color = "black"
+)+
+  
+  labs(
+    x = "EHR Activity",
+    y = "Hours per Typical Day in Clinic",
+    title = "EHR Activity Time",
+    shape = "Group"
+  ) +
+  scale_shape_manual(
+  name = NULL,
+  values = c(
+    "Baseline" = 18,
+    "With AI Scribe (95% CI)" = 16
+  )
+) +
+  theme_bw( base_size = 14) +
+theme(
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.x = element_blank(),
+  axis.text.x = element_text(
+    size = 14,
+    angle = 30,
+    hjust = 1
+  ),
+  plot.title = element_text(face = "bold"),
+  legend.position = "inside",
+  legend.position.inside = c(0.02, 0.98),
+  legend.justification = c(0, 1),
+  legend.background = element_rect(
+    color = "black",
+    fill = "white",
+    linewidth = 0.5
+  )
+)
+
+ggsave("Color DIfference in difference -minutes per appoint.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 5  )
+
+```
+
+### Publuciation Plot - BW
+
+```{r}
+DataPlotBaseline <- DataActAll |> 
+  filter(str_detect(Units, "ay") & Group =="Baseline") |> 
+  select(EHRActivity,Baseline = Value)
+
+DataPlotScribe <- DataActAll |> 
+  filter(str_detect(Units, "ay") & Group !="Baseline") |> 
+  left_join(DataPlotBaseline) |> 
+  mutate(Value = Value + Baseline,
+         LCL = LCL + Baseline,
+         UCL = UCL + Baseline)
+
+colorselect <- "black"
+
+ggplot(DataPlotScribe, aes(x = EHRActivity, y = Value)) +
+  # AI Scribe as point + CI whiskers
+geom_pointrange(
+  data = DataPlotScribe |> filter(Group == "With AI Scribe"),
+  aes(
+    ymin = LCL,
+    ymax = UCL,
+    shape = "With AI Scribe (95% CI)"
+  ),
+  size = 0.9,
+  color = colorselect
+) +
+      geom_point( aes(x = EHRActivity, y = LCL),
+    shape = 95,
+    size = 3,
+    color = colorselect
+  ) +
+        geom_point( aes(x = EHRActivity, y = UCL),
+    shape = 95,
+    size = 3,
+    color = colorselect
+  ) +
+  
+geom_point(
+  aes(
+    x = EHRActivity,
+    y = Baseline,
+    shape = "Baseline"
+  ),
+  size = 3.5,
+  color = "gray60"
+) +
+  
+  geom_text(
+  data = DataPlotScribe,
+  aes(label = round(Value, 2 )),
+  hjust = -.75,   # move text above the right  point
+  size = 3.5,
+  color = colorselect
+)+
+  
+   geom_text(
+  data = DataPlotScribe,
+  aes(x = EHRActivity, y = Baseline, label = round(Baseline, 1)),
+  hjust = 1.75,   # move text above the right  point
+  size = 3.5,
+  color = "black"
+)+
+  
+  labs(
+    x = "EHR Activity",
+    y = "Hours per Typical Day in Clinic",
+    title = "EHR Activity Time",
+    shape = "Group"
+  ) +
+  scale_shape_manual(
+  name = NULL,
+  values = c(
+    "Baseline" = 18,
+    "With AI Scribe (95% CI)" = 16
+  )
+) +
+  theme_bw( base_size = 14) +
+theme(
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.x = element_blank(),
+  axis.text.x = element_text(
+    size = 14,
+    angle = 30,
+    hjust = 1
+  ),
+  plot.title = element_text(face = "bold"),
+  legend.position = "inside",
+  legend.position.inside = c(0.02, 0.98),
+  legend.justification = c(0, 1),
+  legend.background = element_rect(
+    color = "black",
+    fill = "white",
+    linewidth = 0.5
+  )
+)
+
+ggsave("BW DIfference in difference -minutes per appoint.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 5  )
+
+```
+
 
 ## Time in Notes by TYPE of Visit  
 I didn't use this we didn't have enough visit to approach signficance though it appeared to help new visits more. 
@@ -665,7 +886,7 @@ ggplot(data = NormalizedData, aes(x = MeanNormPjHrsDay,
     title = "Change in Work After of Work Hours with AI Scribes" ) +
   theme_bw(base_size = 14)
 
-ggsave("BW Ridge - Normalized WAWH Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
+#ggsave("BW Ridge - Normalized WAWH Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
 ```
 
 
