@@ -182,8 +182,30 @@ BaslineTotalMonthlyNotesMean <-  SignalRaw |>
  
 ```
 
-##WOWH PJTime and Unscheduled Days
+##Baseline Demographic table
+
+```{r}
+UserDemo <- SubKeyTotalAbridgeSessions |> 
+  left_join(SubKeyTotalVisitsNewRet) |> 
+  mutate(ProportionAbridge = round(n/NewRet,2)*100) |> 
+  mutate(HighUser = ProportionAbridge > 70 ) |>
+   mutate(HighUserG = if_else(HighUser,"High", "Low")) |> 
+  left_join(KeyIDRole) |> 
+  select(`Study ID` = StudyID, Role = Roles, `AI Scribe Sessions` = n, `New & Return` = NewRet, `%AI Scribe Use`=ProportionAbridge, `High or Low AI User` = HighUserG) |> 
+  arrange(desc(`%AI Scribe Use`)) |> 
+   gt()
+```
+
+### Table
+```{r}
+UserDemo
+
+```
+
+## WOWH PJTime and Unscheduled Days
+
 **APPs need to be exclude from anything that has time on unscheduled days as they are often scribing for other attendings on unscheduled Days
+
 
 ### WOWH total reduction - High Users
 
@@ -778,7 +800,7 @@ SamedayClosureRate <- SignalRaw |>
   filter(Metric =="Percent of Appointments Closed Same Day") |> 
   filter(GroupData != "Transition") |>
   left_join(KeyUserHigh) |>
-  filter(HighUser) |> 
+  #filter(HighUser) |> 
   mutate(ClosureRate90 = Value>0.90)
 
 ClosureGLM <- glm(ClosureRate90 ~ GroupData, family = binomial,data = SamedayClosureRate)
@@ -844,7 +866,7 @@ NormalizedData <- GraphPJData |>
   group_by(HighUser,GroupData, MoSinceTrans, StudyID) |> 
   summarise(MeanNormPjHrsDay = mean(NormPjHrsDay, na.rm = T)) |> 
   filter(GroupData !=   "Transition" ) |> 
-  mutate(HighUserG = if_else(HighUser,"High AI Sribe Users", "Low AI Scribe Users"),
+  mutate(HighUserG = if_else(HighUser,"High AI Scribe Users", "Low AI Scribe Users"),
          GroupDataLab = if_else(GroupData=="Control","Baseline",GroupData))
 
 GroupDataLablv <- c("Baseline", "AIScribe")
@@ -871,7 +893,7 @@ ggplot(NormalizedData, aes(MoSinceTrans, MeanNormPjHrsDay, group = HighUserG, co
 
 ```
 
-#### Publication:  Ridge Plot
+#### Publication: BW  Ridge Plot
 
 ```{r}
 
@@ -884,14 +906,35 @@ ggplot(data = NormalizedData, aes(x = MeanNormPjHrsDay,
     labels = percent_format()
   ) +
   coord_cartesian(xlim =c (0,2))+
-  facet_wrap(vars(HighUserG),nrow = 1)+
+  facet_wrap(vars(HighUserG),nrow = 2)+
   labs(
-    title = "Change in Work After of Work Hours with AI Scribes" ) +
+    title = "B - Distribution of WAWH Before and After AI Scribes" ) +
   theme_bw(base_size = 14)
 
-#ggsave("BW Ridge - Normalized WAWH Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
+ggsave("BW Ridge - Normalized WAWH Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
 ```
 
+
+#### Publication: Color  Ridge Plot
+
+```{r}
+
+ggplot(data = NormalizedData, aes(x = MeanNormPjHrsDay,
+             y = reorder(GroupDataLab,desc(GroupDataLab)), fill = GroupDataLab  )) +
+  stat_density_ridges(bandwidth = 0.08, scale = 1.25, size = 1.25, color = "white",quantile_lines = T,quantiles = 2, show.legend = F )+
+  scale_fill_manual(values = c("#FFC700","#5d348b"))+
+  labs(x = "% of Baseline Mean", y  =" ") +
+  scale_x_continuous(
+    labels = percent_format()
+  ) +
+  coord_cartesian(xlim =c (0,2))+
+  facet_wrap(vars(HighUserG),nrow = 2)+
+  labs(
+    title = "B - Distribution of WAWH Before and After AI Scribes" ) +
+  theme_bw(base_size = 14)
+
+ggsave("Color Ridge - Normalized WAWH Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
+```
 
 #### violin plot
 
@@ -962,7 +1005,7 @@ NormalizedDataN <- GraphNotesData |>
   group_by(HighUser,GroupData, DaysSinceTrans, StudyID) |> 
   summarise(MeanNormNotesHrsDay = mean(NormNotesHrsDay)) |> 
   filter(GroupData !=   "Transition" ) |> 
-  mutate(HighUserG = if_else(HighUser,"High AI Sribe Users", "Low AI Scribe Users"),            
+  mutate(HighUserG = if_else(HighUser,"High AI Scribe Users", "Low AI Scribe Users"),            
          GroupDataLab = if_else(GroupData=="Control","Baseline",GroupData))
 
 GroupDataLablv <- c("Baseline", "AIScribe")
@@ -985,7 +1028,7 @@ ggplot(NormalizedDataN, aes(DaysSinceTrans, MeanNormNotesHrsDay, group = HighUse
   theme_bw()
 ```
 
-#### Ridge Plot
+#### Ridge Plot BW
 
 ```{r}
 
@@ -1000,12 +1043,35 @@ ggplot(data = NormalizedDataN, aes(x = MeanNormNotesHrsDay,
     n.breaks = 7
   ) +
   coord_cartesian(xlim =c (0.4,1.75))+
-  facet_wrap(vars(HighUserG),nrow = 1)+
+  facet_wrap(vars(HighUserG),nrow = 2)+
   labs(
-    title = "Change in Time in Notes with AI Scribes" ) +
+    title = "A - Distribution of Time in Notes Before and After AI Scribes" ) +
   theme_bw(base_size = 14)
 
 ggsave("BW Ridge - Notes Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
+
+```
+#### Ridge Plot color
+
+```{r}
+
+
+ggplot(data = NormalizedDataN, aes(x = MeanNormNotesHrsDay,
+             y = reorder(GroupDataLab,desc(GroupDataLab)), fill = GroupDataLab  )) +
+  stat_density_ridges(bandwidth = 0.05, scale = 1.25, size = 1.25, color = "white",quantile_lines = T,quantiles = 2, show.legend = F )+
+  scale_fill_manual(values = c("#FFC700","#5d348b"))+
+  labs(x = "% of Baseline Mean", y  =" ") +
+  scale_x_continuous(
+    labels = percent_format(),
+    n.breaks = 7
+  ) +
+  coord_cartesian(xlim =c (0.4,1.75))+
+  facet_wrap(vars(HighUserG),nrow = 2)+
+  labs(
+    title = "A - Distribution of Time in Notes Before and After AI Scribes" ) +
+  theme_bw(base_size = 14)
+
+ggsave("color Ridge - Notes Means.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 10  )
 
 ```
 #### Violin 
