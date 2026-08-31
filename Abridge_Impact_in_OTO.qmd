@@ -185,6 +185,10 @@ BaslineTotalMonthlyNotesMean <-  SignalRaw |>
 ##Baseline Demographic table
 
 ```{r}
+
+#| message: false
+#| warning: false
+#| code-fold: true
 UserDemo <- SubKeyTotalAbridgeSessions |> 
   left_join(SubKeyTotalVisitsNewRet) |> 
   mutate(ProportionAbridge = round(n/NewRet,2)*100) |> 
@@ -262,13 +266,49 @@ LMPJData <- SignalRaw |>
   left_join(KeyUserHigh) |> 
   filter(HighUser) |> 
   mutate(HrsPerDay = PJmontly*20/`per Appointment`/60) |> 
-  select(StudyID, PJmontly, GroupData, HrsPerDay)
+  select(StudyID, PJmontly, GroupData,HighUser, HrsPerDay)
 
-LMPJ <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMPJData)
+LMPJ <- lmer(formula = HrsPerDay ~ (GroupData)/HighUser + (1|StudyID), data = LMPJData)
 
- LMPJcoef <- tidy(LMPJ, effects = "fixed") |> 
-  gt()
- LMPJcoef |> 
+ LMPJhighcoef <- tidy(LMPJ, effects = "fixed")
+ LMPJhighcoef  |> 
+  gt()|> 
+    data_color(columns = p.value,
+          method = "bin",
+          palette = c("green","yellow","red"),
+           bins= c(1.0,0.15,0.05,0))
+
+ 
+```
+### WOWH Pajama Time, low Users
+
+```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
+PJexplore <- SignalRaw |>
+  filter(Metric == "Pajama Time") |> 
+  select(StudyID, StartDate, Value) |> 
+  pivot_wider(names_from = StartDate, values_from = Value)
+
+
+LMPJDatalow <- SignalRaw |>
+  filter(Metric == "Pajama Time")|>
+  filter(GroupData !="Transition") |>
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(PJmontly = sum(Numerator,na.rm =T)) |> 
+  left_join(KeyDenominator, join_by(StudyID,StartDate)) |>
+  left_join(KeyUserHigh) |> 
+  filter(!HighUser) |> 
+  mutate(HrsPerDay = PJmontly*20/`per Appointment`/60) |> 
+  select(StudyID, PJmontly, GroupData,HighUser, HrsPerDay)
+
+LMPJ <- lmer(formula = HrsPerDay ~ (GroupData)/HighUser + (1|StudyID), data = LMPJDatalow)
+
+ LMPJlowcoef <- tidy(LMPJ, effects = "fixed")
+ LMPJlowcoef  |> 
+  gt()|> 
     data_color(columns = p.value,
           method = "bin",
           palette = c("green","yellow","red"),
@@ -277,7 +317,7 @@ LMPJ <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMPJData)
  
 ```
 
-### WOWH Unscheduled Day 
+### WOWH Unscheduled Day - High User
 
 ```{r}
 #| message: false
@@ -290,24 +330,241 @@ APP <- c("ID563","ID606","ID888","ID006")
 LMunSchData <- SignalRaw |>
   filter(Metric == "Time On Unscheduled Days")|>
   filter(GroupData !="Transition") |>
-  filter(StudyID %in% APP)|> 
+ # filter(StudyID %in% APP)|> 
   group_by(StudyID,StartDate,GroupData) |> 
   summarise(Unsch = sum(Numerator,na.rm =T)) |> 
    left_join(KeyDenominator, join_by(StudyID,StartDate)) |> 
-# left_join(KeyUserHigh) |> 
- # filter(HighUser) |> 
+ left_join(KeyUserHigh) |> 
+  filter(HighUser) |> 
   mutate(HrsPerDay = Unsch*20/`per Appointment`/60) |> 
-  select(StudyID, Unsch, GroupData, HrsPerDay)
+  select(StudyID, Unsch, GroupData,HighUser, HrsPerDay)
 
 LMunSch <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMunSchData)
 
- LMunSchcoef <- tidy(LMunSch, effects = "fixed") |> 
-  gt()
- LMunSchcoef |> 
+ LMunSchHcoef <- tidy(LMunSch, effects = "fixed")
+ LMunSchHcoef  |> 
+  gt()|> 
           data_color(columns = p.value,
               method = "bin",
                palette = c("green","yellow","red"),
                bins= c(1.0,0.15,0.05,0))
+```
+### WOWH Unscheduled Day -Low User
+
+```{r}
+#| message: false
+#| warning: false
+#| code-fold: true
+
+
+APP <- c("ID563","ID606","ID888","ID006")
+
+LMunSchData <- SignalRaw |>
+  filter(Metric == "Time On Unscheduled Days")|>
+  filter(GroupData !="Transition") |>
+ # filter(StudyID %in% APP)|> 
+  group_by(StudyID,StartDate,GroupData) |> 
+  summarise(Unsch = sum(Numerator,na.rm =T)) |> 
+   left_join(KeyDenominator, join_by(StudyID,StartDate)) |> 
+ left_join(KeyUserHigh) |> 
+  filter(!HighUser) |> 
+  mutate(HrsPerDay = Unsch*20/`per Appointment`/60) |> 
+  select(StudyID, Unsch, GroupData,HighUser, HrsPerDay)
+
+LMunSch <- lmer(formula = HrsPerDay ~ (GroupData) + (1|StudyID), data = LMunSchData)
+
+ LMunSchLcoef <- tidy(LMunSch, effects = "fixed")
+ LMunSchLcoef |> 
+   gt() |> 
+          data_color(columns = p.value,
+              method = "bin",
+               palette = c("green","yellow","red"),
+               bins= c(1.0,0.15,0.05,0))
+```
+
+### WAWH and WOUD Table 
+
+```{r}
+
+#| message: false
+#| warning: false
+#| code-fold: true
+DataWOWHHigh<- rbind(LMPJhighcoef |> mutate(Metric = "WAWH"), LMunSchHcoef |> mutate(Metric = "WOUD")) |> 
+  mutate(HUg = "High")
+DataWOWHLow<- rbind(LMPJlowcoef|> mutate(Metric = "WAWH"), LMunSchLcoef |> mutate(Metric = "WOUD")) |> 
+    mutate(HUg = "Low")
+
+DataWOWHall<- rbind(DataWOWHLow,DataWOWHHigh) |> 
+  mutate(Units = "Hrs") |> 
+  mutate(Group = if_else(str_detect(term, "ribe"),"With AI Scribe", "Baseline"),
+         Value = round(estimate,2),
+         sd = round(std.error,2),
+         UCL = round((estimate+2*std.error), 2),
+         LCL = round((estimate-2*std.error), 2),
+         pValue = round (p.value, 4) 
+         ) |> 
+  select(Metric:pValue) |> 
+  rename(`High vs Low` = HUg) |> 
+  mutate(
+    Group = recode(
+      Group,
+      "Baseline" = "Baseline",
+      "With AI Scribe" = "AI"
+    )
+  ) |>
+  pivot_wider(
+    id_cols = c(Metric,`High vs Low`, Units),
+    names_from = Group,
+    values_from = c(Value, sd, LCL, UCL, pValue),
+    names_glue = "{Group}_{.value}"
+  ) |>
+  select(Metric,
+    `High vs Low`,
+    Units,
+    Baseline_Value,
+    Baseline_sd,
+    AI_ChangeValue = AI_Value,
+    AI_LCL,
+    AI_UCL,
+    AI_pValue
+  ) |> 
+  mutate(AI_Value = Baseline_Value+AI_ChangeValue)
+
+DataWOWHall |> 
+  group_by(Metric) |> 
+  gt()
+```
+
+### Function for WOWH Graphs
+
+```{r}
+# inputs for function are colours x = condition, y = baseline
+
+
+
+CreateWOWHPlot <- function(data, ColorFinding, ColorBaseline) {
+
+  ggplot(data, aes(x = `High vs Low`, y = AI_Value )) +
+
+    # Finding estimates and 95% confidence intervals
+    geom_pointrange(
+      data = data,
+      aes(
+        ymin = AI_LCL+Baseline_Value,
+        ymax = AI_UCL+Baseline_Value,
+        shape = "With AI Scribe (95% CI)"
+      ),
+      size = 0.9,
+      color = ColorFinding
+    ) +
+
+    # Confidence-interval end caps
+    geom_point(
+      data = data,
+      aes(y = (AI_LCL+Baseline_Value)),
+      shape = 124,
+      size = 3,
+      color = ColorFinding
+    ) +
+    geom_point(
+      data = data,
+      aes(y = (Baseline_Value + AI_UCL)),
+      shape = 124,
+      size = 3,
+      color = ColorFinding
+    ) +
+
+    # Baseline points
+    geom_point(
+      aes(
+        y = Baseline_Value,
+        shape = "Baseline"
+      ),
+      size = 3.5,
+      color = ColorBaseline
+    ) +
+
+    # Finding value labels
+    geom_text(
+      data = data,
+      aes(label = round(AI_Value, 2)),
+      vjust = -0.75,
+      size = 3.5,
+      color = ColorFinding
+    ) +
+
+    # Baseline value labels
+    geom_text(
+      aes(
+        y = Baseline_Value,
+        label = round(Baseline_Value, 1)
+      ),
+      vjust = 1.75,
+      size = 3.5,
+      color = "black"
+    ) +
+
+    labs(
+      x = "Ambient AI scribe Use",
+      y = "Hours per Typical Day in Clinic",
+      title = "Work Outside of Work Hours",
+      shape = "Group"
+    ) +
+
+    scale_shape_manual(
+      name = NULL,
+      values = c(
+        "Baseline" = 18,
+        "With AI Scribe (95% CI)" = 16
+      )
+    ) +
+
+    coord_flip() +
+    facet_wrap(vars(Metric),ncol = 1)+
+    theme_bw(base_size = 14) +
+
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      plot.title = element_text(face = "bold"),
+      legend.position = "inside",
+      legend.position.inside = c(0.55, 0.98),
+      legend.justification = c(0, 1),
+      legend.background = element_rect(
+        color = "black",
+        fill = "white",
+        linewidth = 0.5
+      )
+    )
+  
+}
+
+```
+#### Publicaiton Plot - BW WOWH
+
+```{r}
+ #| message: false
+#| warning: false
+#| code-fold: true
+
+CreateWOWHPlot(DataWOWHall,"black", "grey75")
+
+ggsave("BW - WOWH.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 6  )
+
+```
+
+#### Publicaiton Plot - Color WOWH
+
+```{r}
+ #| message: false
+#| warning: false
+#| code-fold: true
+
+CreateWOWHPlot(DataWOWHall,"#5d348b", "#FFC700")
+
+ggsave("Color - WOWH.jpg",device = "jpeg",path = "C://Users//jpgil//OneDrive//Research - Primary//Epic//Abridge OTO//Abridge OTO Analysis//Figures", dpi = "retina", units = "in", height = 5,width = 6  )
+
 ```
 
 ## Time in Activity
@@ -525,12 +782,12 @@ geom_pointrange(
   color = colorselect
 ) +
       geom_point( aes(x = EHRActivity, y = LCL),
-    shape = 95,
+    shape = 124,
     size = 3,
     color = colorselect
   ) +
         geom_point( aes(x = EHRActivity, y = UCL),
-    shape = 95,
+    shape = 124,
     size = 3,
     color = colorselect
   ) +
@@ -548,7 +805,7 @@ geom_point(
   geom_text(
   data = DataPlotScribe,
   aes(label = round(Value, 2 )),
-  hjust = -.75,   # move text above the right  point
+  vjust = -.75,   # move text above the right  point
   size = 3.5,
   color = colorselect
 )+
@@ -556,7 +813,7 @@ geom_point(
    geom_text(
   data = DataPlotScribe,
   aes(x = EHRActivity, y = Baseline, label = round(Baseline, 1)),
-  hjust = 1.75,   # move text above the right  point
+  vjust = 1.75,   # move text above the right  point
   size = 3.5,
   color = "black"
 )+
@@ -574,18 +831,17 @@ geom_point(
     "With AI Scribe (95% CI)" = 16
   )
 ) +
+  coord_flip()+
   theme_bw( base_size = 14) +
 theme(
   panel.grid.major.x = element_blank(),
   panel.grid.minor.x = element_blank(),
-  axis.text.x = element_text(
-    size = 14,
-    angle = 30,
-    hjust = 1
+  axis.text.y = element_text(
+    size = 16
   ),
   plot.title = element_text(face = "bold"),
   legend.position = "inside",
-  legend.position.inside = c(0.02, 0.98),
+  legend.position.inside = c(0.55, 0.98),
   legend.justification = c(0, 1),
   legend.background = element_rect(
     color = "black",
@@ -614,6 +870,7 @@ DataPlotScribe <- DataActAll |>
 
 colorselect <- "black"
 
+
 ggplot(DataPlotScribe, aes(x = EHRActivity, y = Value)) +
   # AI Scribe as point + CI whiskers
 geom_pointrange(
@@ -627,12 +884,12 @@ geom_pointrange(
   color = colorselect
 ) +
       geom_point( aes(x = EHRActivity, y = LCL),
-    shape = 95,
+    shape = 124,
     size = 3,
     color = colorselect
   ) +
         geom_point( aes(x = EHRActivity, y = UCL),
-    shape = 95,
+    shape = 124,
     size = 3,
     color = colorselect
   ) +
@@ -644,13 +901,13 @@ geom_point(
     shape = "Baseline"
   ),
   size = 3.5,
-  color = "gray60"
+  color = "grey75"
 ) +
   
   geom_text(
   data = DataPlotScribe,
   aes(label = round(Value, 2 )),
-  hjust = -.75,   # move text above the right  point
+  vjust = -.75,   # move text above the right  point
   size = 3.5,
   color = colorselect
 )+
@@ -658,7 +915,7 @@ geom_point(
    geom_text(
   data = DataPlotScribe,
   aes(x = EHRActivity, y = Baseline, label = round(Baseline, 1)),
-  hjust = 1.75,   # move text above the right  point
+  vjust = 1.75,   # move text above the right  point
   size = 3.5,
   color = "black"
 )+
@@ -676,18 +933,17 @@ geom_point(
     "With AI Scribe (95% CI)" = 16
   )
 ) +
+  coord_flip()+
   theme_bw( base_size = 14) +
 theme(
   panel.grid.major.x = element_blank(),
   panel.grid.minor.x = element_blank(),
-  axis.text.x = element_text(
-    size = 14,
-    angle = 30,
-    hjust = 1
+  axis.text.y = element_text(
+    size = 16
   ),
   plot.title = element_text(face = "bold"),
   legend.position = "inside",
-  legend.position.inside = c(0.02, 0.98),
+  legend.position.inside = c(0.55, 0.98),
   legend.justification = c(0, 1),
   legend.background = element_rect(
     color = "black",
